@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'm = m.cli:m',
+            'm = m.cli:cli',
         ],
     },
     install_requires=[

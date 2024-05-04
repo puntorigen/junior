@@ -1,3 +1,6 @@
+dev:
+	pip install -e .
+
 generate-docs:
 	pdoc --html m --output-dir docs
 

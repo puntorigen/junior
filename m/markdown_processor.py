@@ -1,7 +1,7 @@
 import mistune
 from . import code_executor
 
-class MyRenderer(mistune.AstRenderer):
+class MyRenderer(mistune.HTMLRenderer):
     def block_code(self, code, info=None):
         return {'type': 'block_code', 'text': code, 'language': info}
 
