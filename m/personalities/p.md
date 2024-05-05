@@ -2,6 +2,15 @@
 Used for writting reports, articles, and other long-form content. Also use it as default if there no other template that is a better match.
 ```
 
+```json:theme
+{
+    "analyzing": "yellow",
+    "planning": "cyan",
+    "drafting": "blue",
+    "updating": "green",
+    
+}
+```
 Generally avoid the following whenever drafting emails or other content from scratch:
 - Overused words/phrases: 
 streamline, delve, tapestry, certainly, complex, nuanced, multifaceted, crucial, essential, profound, underscores, embark on a journey, testament, exemplify, foster, realm, bustling, unleash
