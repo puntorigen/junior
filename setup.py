@@ -9,7 +9,9 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'm = m.cli:cli',
+            'm = m.cli:cli', #Main personality
+            'p = m.cli:cli', #Pablo personality
+            'q = m.cli:cli', #Q personality
         ],
     },
     install_requires=[

@@ -6,7 +6,17 @@ from yaspin import yaspin, Spinner
 from yaspin.spinners import Spinners
 import time
 
+# Localization setup (assuming locales are present)
+locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
+gettext.bindtextdomain('messages', locales_dir)
+gettext.textdomain('messages')
+_ = gettext.gettext
+
+# Determine if the output is being redirected (instead of terminal)
 is_output_redirected = not sys.stdout.isatty()
+
+# Determine which alias (bin/executable) was used
+alias_used = os.path.basename(sys.argv[0])
 
 def cleanup():
     # Perform cleanup here, such as removing temporary files
@@ -22,9 +32,9 @@ signal.signal(signal.SIGINT, signal_handler)
 astral = Spinner(["⭐", "✨", "🌟", "🚀"], 200)
 
 def process(text="Processing"):
-    with yaspin(astral, text=text) as spinner:
+    with yaspin(astral, text=f"[{alias_used}] {text}") as spinner:
         time.sleep(5)  # Simulate work
-        spinner.text = f"{text}... done!"
+        spinner.text = f"[{alias_used}] {text}... done!"
         spinner.ok("✔")
 
 @click.command()
