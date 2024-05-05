@@ -7,10 +7,10 @@
 from datetime import datetime
 from pathlib import Path
 from fnmatch import fnmatch
+from importlib import import_module
 
-from code2prompt.language_inference import infer_language
-from code2prompt.comment_stripper import strip_comments
-
+from .comment_stripper import strip_comments
+from .language_inference import infer_language
 
 class Code2Prompt:
     def __init__(self, path, gitignore=None, file_filter=None, suppress_comments=False):
@@ -20,6 +20,7 @@ class Code2Prompt:
         self.gitignore_patterns.add(".git")
         self.file_filter = file_filter
         self.suppress_comments = suppress_comments
+        self.parsers_dir = Path(__file__).parent / "parsers"
 
     @staticmethod
     def parse_gitignore(gitignore_path):
@@ -73,6 +74,15 @@ class Code2Prompt:
             print(f"Error: The file at {file_path} could not be opened.")
             return False
 
+    def find_parser(self, extension):
+        """Dynamically find the parser module for a given file extension."""
+        parser_module_name = f"{extension[1:]}_parser"
+        try:
+            parser_module = import_module(f".parsers.{parser_module_name}", package="m.utils.code2prompt")
+            return getattr(parser_module, "parse_to_markdown")
+        except (ImportError, AttributeError):
+            return None
+
     def create_markdown_context(self):
         """Create a context object with content of files in a directory."""
         content = []
@@ -83,7 +93,6 @@ class Code2Prompt:
                 file_path.is_file()
                 and not self.is_ignored(file_path, self.gitignore_patterns, self.path)
                 and (not self.file_filter or self.is_filtered(file_path, self.file_filter))
-                and not self.is_binary(file_path)
             ):
                 file_extension = file_path.suffix
                 file_size = file_path.stat().st_size
@@ -95,12 +104,19 @@ class Code2Prompt:
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
                 try:
-                    with file_path.open("r", encoding="utf-8") as f:
-                        file_content = f.read()
-                        if self.suppress_comments:
-                            language = infer_language(file_path.name)
-                            if language != "unknown":
-                                file_content = strip_comments(file_content, language)
+                    if self.is_binary(file_path):
+                        parser = self.find_parser(file_extension)
+                        if parser:
+                            file_content = parser(file_path)
+                        else:
+                            file_content = "This binary file could not be parsed to text."
+                    else:
+                        with file_path.open("r", encoding="utf-8") as f:
+                            file_content = f.read()
+                            if self.suppress_comments:
+                                language = infer_language(file_path.name)
+                                if language != "unknown":
+                                    file_content = strip_comments(file_content, language)
                 except UnicodeDecodeError:
                     continue  # Ignore files that cannot be decoded
 
@@ -114,7 +130,7 @@ class Code2Prompt:
 
                 language = infer_language(file_path.name)
                 if language == "unknown":
-                    language = format(file_extension[1:])
+                    language = file_extension[1:]
 
                 file_code = {
                     "language": language,
