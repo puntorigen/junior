@@ -1,4 +1,4 @@
-# utilities for system operations
+import platform
 import psutil
 import shutil
 import GPUtil
@@ -56,6 +56,11 @@ class SystemInfo:
         return gpu_info_list
 
     @staticmethod
+    def is_silicon_mac() -> bool:
+        """Check if the system is a silicon-based Mac (e.g., M1, M2)."""
+        return platform.system() == "Darwin" and platform.machine() == "arm64"
+
+    @staticmethod
     def basic_benchmark():
         """Get basic benchmarking scores, such as CPU speed and internet speed."""
         cpu_info = SystemInfo.get_cpu_info()
@@ -80,7 +85,8 @@ class SystemInfo:
             "disk": SystemInfo.get_disk_info(),
             "cpu": SystemInfo.get_cpu_info(),
             "gpu": SystemInfo.get_gpu_info(),
-            "benchmark": SystemInfo.basic_benchmark()
+            "benchmark": SystemInfo.basic_benchmark(),
+            "is_silicon_mac": SystemInfo.is_silicon_mac()
         }
 
 # Example Usage
@@ -88,3 +94,9 @@ if __name__ == "__main__":
     system_info = SystemInfo.get_all_info()
     for key, value in system_info.items():
         print(f"{key.capitalize()}: {value}")
+
+    # Check if the system is a silicon-based Mac
+    if SystemInfo.is_silicon_mac():
+        print("This is a silicon-based Mac (e.g., M1, M2).")
+    else:
+        print("This is not a silicon-based Mac.")
