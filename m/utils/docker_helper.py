@@ -80,12 +80,13 @@ class DockerHelper:
 
         return "not running"
 
-    def create_instance(self, name: str = None):
+    def create_instance(self, name: str = None, network: str = None):
         """Create a new Docker instance.
 
         Args:
             name (str, optional): Name for the Docker container. Defaults to "default_python_container".
-
+            network (str, optional): Name of the Docker network bridge. Defaults to None.
+            
         Returns:
             docker.models.containers.Container: The created container.
         """
@@ -100,12 +101,17 @@ class DockerHelper:
 
         name = name or self.container_name
 
-        self.container = self.client.containers.run(
-            image=self.image,
-            command="tail -f /dev/null",  # Keep the container running
-            detach=True,
-            name=name
-        )
+        container_params = {
+            "image": self.image,
+            "command": "tail -f /dev/null",  # Keep the container running
+            "detach": True,
+            "name": name
+        }
+
+        if network:
+            container_params["network"] = network
+
+        self.container = self.client.containers.run(**container_params)
         print(f"Docker container '{name}' started.")
         return self.container
 
