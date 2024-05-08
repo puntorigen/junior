@@ -22,14 +22,6 @@ click.rich_click.STYLE_COMMANDS_TABLE_BOX = "DOUBLE"
 click.rich_click.STYLE_COMMANDS_TABLE_BORDER_STYLE = "red"
 click.rich_click.STYLE_COMMANDS_TABLE_ROW_STYLES = ["magenta", "yellow", "cyan", "green"]
 
-# Localization setup (assuming locales are present)
-locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
-# Initialize Localizer
-print("locales_dir:", locales_dir)
-localizer = Localizer(locale_path=locales_dir, domain="messages")
-_ = localizer.translate
-test = _(f"Testing translation", target_lang="es")
-print("test:", test)
 #print("init translation service")
 #trans = TranslationService(cache_dir=None)
 #print("running translate offline")
@@ -48,7 +40,7 @@ def cleanup():
     pass
 
 def signal_handler(sig, frame):
-    click.echo(_('CTRL-C detected. Exiting gracefully.',target_lang=target_lang))
+    click.echo(_('CTRL-C detected. Exiting gracefully.'))
     cleanup()
     sys.exit(0)
 
@@ -70,6 +62,7 @@ def process(text="Processing"):
 def cli(input, debug, language, output_dir):
     """Process the input"""
     global target_lang
+    global _
     target_lang = "en"
     if language:
         target_lang = language
@@ -82,10 +75,17 @@ def cli(input, debug, language, output_dir):
             click.echo(f"Output language set to: {target_lang}")
         except Exception:
             target_lang = "en"
-    click.echo(_(f"Target language set to: {target_lang}", target_lang=target_lang, online=False))
+    # Localization setup (assuming locales are present)
+    # Initialize Localizer
+    locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
+    print("locales_dir:", locales_dir)
+    localizer = Localizer(locale_path=locales_dir, domain="messages",target_lang=target_lang, online=False)
+    _ = localizer._
+    #
+    click.echo(_("Target language set to: {target_lang}", target_lang=target_lang))
 
     # Your processing logic
-    click.secho(f"Processing input: {input}", fg="green")
+    click.secho(_("Processing input: {input}",input=input), fg="green")
     process(f"Processing '{input}'")
     if debug:
         click.echo("Debug mode is on")

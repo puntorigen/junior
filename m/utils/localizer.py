@@ -5,26 +5,32 @@ import gettext
 from .translator import TranslationService
 
 class Localizer:
-    def __init__(self, locale_path='locales', domain='messages', cache_dir=None, cache_ttl=3600):
+    def __init__(self, locale_path='locales', domain='messages', cache_dir=None, cache_ttl=3600, target_lang='en', online=True):
         self.locale_path = locale_path
         self.domain = domain
         self.translator = TranslationService(cache_dir=cache_dir, cache_ttl=cache_ttl)
+        self.target_lang = target_lang
+        self.online = online
 
         # Configure gettext
         gettext.bindtextdomain(domain, locale_path)
         gettext.textdomain(domain)
-        self._ = gettext.gettext
 
-    def translate(self, text, target_lang='en', online=True):
+    def translate(self, text):
         """Translate the given text using gettext with fallback translation."""
-        translated_text = self._(text)
+        translated_text = gettext.gettext(text)
 
         if translated_text == text:  # No translation found in .mo files
-            translated_text = self.translator.translate(text, target_lang=target_lang, online=online)
-            translation_method = "Online" if online else "Offline"
-            self.update_po_file(text, translated_text, target_lang, translation_method)
+            translated_text = self.translator.translate(text, target_lang=self.target_lang, online=self.online)
+            translation_method = "Online" if self.online else "Offline"
+            self.update_po_file(text, translated_text, self.target_lang, translation_method)
 
         return translated_text
+
+    def _(self, text, *args, **kwargs):
+        """Format the translated string with dynamic parameters, mimicking the gettext `_` function, keeping placeholders intact."""
+        translated_text = self.translate(text)
+        return translated_text.format(*args, **kwargs)
 
     def update_po_file(self, text, translation, target_lang, method):
         """Update the .po file with a new translation and recompile to .mo."""

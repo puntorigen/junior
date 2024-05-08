@@ -34,6 +34,9 @@ class TranslationService:
 
         translation = self.translator_offline.translate(text, source_lang=source_lang, target_lang=target_lang)
         self.cache.set(cache_key, translation, ttl=self.cache_ttl)
+        print(f"source language: {source_lang}, target language: {target_lang}")
+        print(f"source text: {text}")
+        print(f"offline translated text: {translation}")
         return translation
 
     def translate_online(self, text, target_lang='en'):
@@ -46,6 +49,9 @@ class TranslationService:
 
         translation = self.translator_online.translate(text, source=source_lang, target=target_lang)
         self.cache.set(cache_key, translation, ttl=self.cache_ttl)
+        print(f"source language: {source_lang}, target language: {target_lang}")
+        print(f"source text: {text}")
+        print(f"online translated text: {translation}")
         return translation
 
     def translate(self, text, target_lang='en', online=True):
