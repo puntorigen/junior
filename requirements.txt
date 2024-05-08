@@ -98,6 +98,7 @@ regex==2024.4.28
 requests==2.31.0
 RestrictedPython==7.1
 rich==13.7.1
+rich-click==1.8.1
 scikit-image==0.22.0
 scipy==1.13.0
 shapely==2.0.4
