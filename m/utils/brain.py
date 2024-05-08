@@ -82,6 +82,14 @@ class Brain:
 
         for name, config in self.llm_configs.items():
             if name in self.instructors:
+                if self.token_tracker.model_exceeds_limits(name, config["limits"]):
+                    fallback = config["fallback"]
+                    if fallback and fallback in self.instructors:
+                        name = fallback
+                        config = self.llm_configs[fallback]
+                    else:
+                        continue
+
                 supports_category = category in config["expert_for"]
                 within_token_limit = token_count + config["max_output_tokens"] <= config["context_window_tokens"]
 
@@ -97,6 +105,7 @@ class Brain:
             click.echo("No suitable instructor found.")
 
         return best_instructor
+
 
     def prompt(self, prompt: str, output_schema: BaseModel, llm: str = None, category: Optional[str] = "everything") -> Union[BaseModel, None]:
         """Standardize calls to LLMs using a single prompt method.
