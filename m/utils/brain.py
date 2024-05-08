@@ -1,6 +1,9 @@
 import click
+import instructor
+from openai import OpenAI
+from groq import Groq
+from anthropic import Anthropic
 from pydantic import BaseModel
-from instructor import Instruct
 from typing import Any, Dict, List, Union, Optional
 from .setup import Setup
 from .docker_helper import DockerHelper
@@ -19,7 +22,7 @@ class Brain:
         self.instructors = self.init_instructors()
         self.start_local_model_if_available()
 
-    def init_instructors(self) -> Dict[str, Instruct]:
+    def init_instructors(self) -> Dict[str, Any]:
         """Initialize the instructor clients based on available API keys."""
         instructors = {}
 
@@ -30,13 +33,21 @@ class Brain:
         for full_name, api_key in remote_llms.items():
             if api_key:
                 provider, _ = full_name.split("/")
-                instructors[full_name] = Instruct(api_key=api_key, provider=provider.lower())
+                if provider.lower() == "openai":
+                    instructors[full_name] = instructor.from_openai(OpenAI(api_key=api_key))
+                elif provider.lower() == "ollama":
+                    instructors[full_name] = instructor.from_openai(OpenAI(api_key="ollama", base_url="http://localhost:11434/v1"), mode=instructor.Mode.JSON)
+                elif provider.lower() == "groq":
+                    instructors[full_name] = instructor.from_groq(Groq(api_key=api_key))
+                elif provider.lower() == "anthropic":
+                    instructors[full_name] = instructor.from_anthropic(Anthropic().messages.create,mode=instructor.Mode.ANTHROPIC_JSON)
 
         # Add all local models that meet the system requirements
         local_llms = llm_settings.get("local", {})
         for full_name in local_llms.keys():
             if full_name in self.llm_configs and self.llm_configs[full_name]["local"]:
-                instructors[full_name] = Instruct(api_key=None, provider="ollama")
+                instructors[full_name] = instructor.from_openai(OpenAI(api_key="ollama", base_url="http://localhost:11434/v1"), mode=instructor.Mode.JSON)
+                #instructors[full_name] = Instruct(api_key=None, provider="ollama")
 
         return instructors
 
@@ -66,7 +77,7 @@ class Brain:
         encoding = tiktoken.encoding_for_model(model)
         return len(encoding.encode(prompt))
 
-    def choose_best_instructor(self, prompt: str, category: Optional[str] = "everything") -> Optional[Instruct]:
+    def choose_best_instructor(self, prompt: str, category: Optional[str] = "everything") -> Optional[Any]:
         """Choose the best instructor for the given prompt and category.
 
         Args:

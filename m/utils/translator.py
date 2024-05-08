@@ -1,20 +1,30 @@
 # translator.py
-from easynmt import EasyNMT
-from googletrans import Translator as GoogleTranslator
-from langdetect import detect
+from deep_translator import GoogleTranslator as DeepGoogleTranslator
+from lingua import Language, LanguageDetectorBuilder
 from .cache import Cache
 
 class TranslationService:
     def __init__(self, cache_dir=None, offline_model='opus-mt', cache_ttl=3600):
-        self.translator_offline = EasyNMT(offline_model)
-        self.translator_online = GoogleTranslator()
+        self.translator_offline_model_name = offline_model
+        self.translator_offline = None
+        self.translator_online = DeepGoogleTranslator()
         self.cache = Cache(directory=cache_dir)
         self.cache_ttl = cache_ttl
 
+    def _load_translator_offline(self):
+        """Load the offline translator model only when needed."""
+        if self.translator_offline is None:
+            from easynmt import EasyNMT
+            self.translator_offline = EasyNMT(self.translator_offline_model_name, device='cpu')
+
     def detect_language(self, text):
-        return detect(text)
+        languages = [Language.ENGLISH, Language.FRENCH, Language.GERMAN, Language.SPANISH]
+        detector = LanguageDetectorBuilder.from_languages(*languages).build()
+        detected = detector.detect_language_of(text)
+        return detected.iso_code_639_1.name.lower()
 
     def translate_offline(self, text, target_lang='en'):
+        self._load_translator_offline()
         source_lang = self.detect_language(text)
         cache_key = f"{source_lang}:{target_lang}:{text}"
         cached_translation = self.cache.get(cache_key)
@@ -34,7 +44,7 @@ class TranslationService:
         if cached_translation:
             return cached_translation
 
-        translation = self.translator_online.translate(text, src=source_lang, dest=target_lang).text
+        translation = self.translator_online.translate(text, source=source_lang, target=target_lang)
         self.cache.set(cache_key, translation, ttl=self.cache_ttl)
         return translation
 

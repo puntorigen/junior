@@ -4,7 +4,7 @@ from typing import Dict
 import json
 import click
 from .storage import EncryptedJSONStorage
-from .system import System
+from .system_helper import SystemInfo
 from .docker_helper import DockerHelper
 from .llm_configs import llm_configs
 

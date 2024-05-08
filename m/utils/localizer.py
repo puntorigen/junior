@@ -8,7 +8,7 @@ class Localizer:
     def __init__(self, locale_path='locales', domain='messages', cache_dir=None, cache_ttl=3600):
         self.locale_path = locale_path
         self.domain = domain
-        self.translator = TranslationService(cache_dir=cache_dir, cache_ttl=cache_ttl, locale_path=locale_path, domain=domain)
+        self.translator = TranslationService(cache_dir=cache_dir, cache_ttl=cache_ttl)
 
         # Configure gettext
         gettext.bindtextdomain(domain, locale_path)
