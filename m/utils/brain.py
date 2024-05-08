@@ -4,6 +4,7 @@ from instructor import Instruct
 from typing import Any, Dict, List, Union, Optional
 from .setup import Setup
 from .docker_helper import DockerHelper
+from .token_tracker import TokenTracker
 import tiktoken
 
 class Brain:
@@ -119,7 +120,10 @@ class Brain:
             click.echo("No suitable LLM found.")
             return None
 
+        tokens_used = self.count_tokens(prompt)
         response = instructor(prompt)
+        self.token_tracker.update_model_usage(instructor.provider, tokens=tokens_used)
+
         try:
             validated_output = output_schema.parse_obj(response)
             return validated_output
