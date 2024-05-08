@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import Dict
 import json
 import click
-#from getpass import getpass
 from .storage import EncryptedJSONStorage
 from .system import System
 from .docker_helper import DockerHelper
+from .llm_configs import llm_configs
 
 class Setup:
     def __init__(self):
@@ -17,13 +17,9 @@ class Setup:
         self.system = System()
         self.docker_helper = DockerHelper()
         self.docker_image_ollama = "ollama/ollama"
-        self.docker_image_litellm = "litellm/litellm"
-        self.min_required_ram = 16  # GB
-        self.min_required_disk = 100  # GB
-        self.local_model = "ollama/minstral"
-        self.api_keys = {"Anthropic": None, "OpenAI": None, "Groq": None}
-        self.local_settings = {}
+        self.local_container_name = "ollama_server"
 
+        self.llm_configs = llm_configs
         self.settings = self.load_settings()
 
     def load_settings(self) -> Dict:
@@ -65,8 +61,8 @@ class Setup:
 
         if not llm_available:
             specs = self.system.get_specs()
-            ram_ok = specs["memory"]["total"] >= self.min_required_ram
-            disk_ok = specs["disk"]["free"] >= self.min_required_disk
+            ram_ok = specs["memory"]["total"] >= 16
+            disk_ok = specs["disk"]["free"] >= 100
 
             click.echo(f"System specs: RAM: {specs['memory']['total']} GB, Free Disk Space: {specs['disk']['free']} GB")
 
@@ -93,29 +89,42 @@ class Setup:
 
     def setup_local_models(self):
         """Set up local models using Docker and Ollama."""
-        # Start Ollama if not already running
-        click.echo("Checking or starting Ollama Docker image...")
-        if not self.docker_helper.image_exists(self.docker_image_ollama):
-            self.docker_helper.pull_image(self.docker_image_ollama)
+        specs = self.system.get_specs()
+        click.echo(f"System specs: RAM: {specs['memory']['total']} GB, Free Disk Space: {specs['disk']['free']} GB")
 
-        if not self.docker_helper.container_exists(self.docker_image_ollama):
-            self.docker_helper.create_instance(name=self.docker_image_ollama)
+        # Ensure Docker requirements
+        self.check_docker_requirements()
 
-        click.echo("Downloading Minstral model...")
-        # Simulate model download and configuration
-        self.settings["LLM"] = self.settings.get("LLM", {})
-        self.settings["LLM"]["local"] = self.settings["LLM"].get("local", {})
-        self.settings["LLM"]["local"]["ollama"] = {"model": self.local_model}
+        # Start Ollama server if not already running
+        if not self.docker_helper.container_exists(self.local_container_name):
+            click.echo("Starting Ollama Docker instance...")
+            self.docker_helper.create_instance(name=self.local_container_name, network="bridge")
+
+        # Configure and download local models
+        for name, config in self.llm_configs.items():
+            if config["local"]:
+                meets_memory = specs["memory"]["total"] >= (config["minimum_ram_required"] or 0)
+                meets_disk_space = specs["disk"]["free"] >= (config["required_disk_space"] or 0)
+                meets_gpu = (not config["minimum_gpu_required"] or specs["gpu"])
+
+                if meets_memory and meets_disk_space and meets_gpu:
+                    click.echo(f"Downloading and configuring local model '{name}'...")
+                    # Simulate model download and configuration
+                    self.settings["LLM"] = self.settings.get("LLM", {})
+                    self.settings["LLM"]["local"] = self.settings["LLM"].get("local", {})
+                    self.settings["LLM"]["local"][name] = {"model": name}
+                else:
+                    click.echo(f"Insufficient system resources for local model '{name}'.")
 
     def setup_remote_models(self):
         """Set up remote models with API keys."""
         click.echo("Please enter your API keys for remote LLMs:")
-        for key in self.api_keys:
+        for name in ["Anthropic", "OpenAI", "Groq"]:
             self.settings["LLM"] = self.settings.get("LLM", {})
             self.settings["LLM"]["remote"] = self.settings["LLM"].get("remote", {})
-            self.settings["LLM"]["remote"][key] = click.prompt(
-                f"Enter {key} API Key",
-                default=self.settings["LLM"]["remote"].get(key, "")
+            self.settings["LLM"]["remote"][name] = click.prompt(
+                f"Enter {name} API Key",
+                default=self.settings["LLM"]["remote"].get(name, "")
             )
 
     def run_initial_setup(self):
