@@ -1,3 +1,4 @@
+# localizer.py
 import os
 import polib
 import gettext
@@ -17,9 +18,10 @@ class Localizer:
 
     def translate(self, text):
         """Translate the given text using gettext with fallback translation."""
-        translated_text = gettext.gettext(text)
+        #translated_text = gettext.gettext(text)
+        translated_text = self.searchTranslation(text)
 
-        if translated_text == text:  # No translation found in .mo files
+        if not translated_text is None or translated_text == text: # No translation found in .mo files
             translated_text = self.translator.translate(text, target_lang=self.target_lang, online=self.online)
             translation_method = "Online" if self.online else "Offline"
             self.update_po_file(text, translated_text, self.target_lang, translation_method)
@@ -34,11 +36,8 @@ class Localizer:
         # Translate the modified text
         translated_temp_text = self.translate(temp_text)
 
-        # Restore original placeholders in the final translation
+        # Restore original placeholders
         translated_text = self._restore_placeholders(translated_temp_text, unique_to_placeholder)
-
-        # Update .po file using the original text (with actual placeholders)
-        self.update_po_file(text, translated_text, self.target_lang, "Online" if self.online else "Offline")
 
         return translated_text.format(*args, **kwargs)
 
@@ -46,10 +45,10 @@ class Localizer:
         """Replace placeholders with unique identifiers."""
         unique_to_placeholder = {}
         for i, placeholder in enumerate(kwargs.keys()):
-            unique_key = f'_PLACEHOLDER_{i}_'
-            original_placeholder = f'{{{placeholder}}}'
-            text = text.replace(original_placeholder, unique_key)
-            unique_to_placeholder[unique_key] = original_placeholder
+            #unique_key = f'_PLACEHOLDER_{i}_'
+            unique_key = f'{{v{i}}}'
+            text = text.replace(f'{{{placeholder}}}', unique_key)
+            unique_to_placeholder[unique_key] = f'{{{placeholder}}}'
         return text, unique_to_placeholder
 
     def _restore_placeholders(self, text, unique_to_placeholder):
@@ -58,55 +57,62 @@ class Localizer:
             text = text.replace(unique_key, placeholder)
         return text
 
-    def update_po_file(self, original_text, translated_text, target_lang, method):
-        """Update the .po file with a new translation and recompile to .mo."""
-        po_file_path = os.path.join(self.locale_path, target_lang, 'LC_MESSAGES', f'{self.domain}.po')
-        mo_file_path = os.path.join(self.locale_path, target_lang, 'LC_MESSAGES', f'{self.domain}.mo')
+    def searchTranslation(self, text):
+        """Search for a translation in the .po file."""
+        po_dir = os.path.join(self.locale_path, self.target_lang, 'LC_MESSAGES')
+        po_file_path = os.path.join(po_dir, f'{self.domain}.po')
 
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(po_file_path), exist_ok=True)
-
-        # Load or create the .po file
         if os.path.exists(po_file_path):
             po = polib.pofile(po_file_path)
-        else:
-            po = polib.POFile()
-            po.metadata = {
-                'Project-Id-Version': '1.0',
-                'Report-Msgid-Bugs-To': '',
-                'POT-Creation-Date': '',
-                'PO-Revision-Date': '',
-                'Last-Translator': '',
-                'Language-Team': '',
-                'MIME-Version': '1.0',
-                'Content-Type': 'text/plain; charset=UTF-8',
-                'Content-Transfer-Encoding': '8bit',
-                'Language': target_lang,
-            }
+            entry = po.find(text)
+            if entry:
+                return entry.msgstr
+        return None
 
-        # Find or create the entry
-        entry = po.find(original_text)
-        if entry is None:
-            entry = polib.POEntry(msgid=original_text, msgstr=translated_text)
-            po.append(entry)
-        else:
-            entry.msgstr = translated_text
+    def update_po_file(self, original_text, translation, target_lang, method):
+        """Update the .po file with the original placeholders intact."""
+        po_dir = os.path.join(self.locale_path, target_lang, 'LC_MESSAGES')
+        po_file_path = os.path.join(po_dir, f'{self.domain}.po')
+        mo_file_path = os.path.join(po_dir, f'{self.domain}.mo')
 
-        # Add translation method as a comment
-        entry.comment = f'Translated using {method} translation.'
+        # Ensure the directory exists
+        os.makedirs(po_dir, exist_ok=True)
 
-        # Remove entries with placeholders
-        po = self._remove_placeholder_entries(po)
+        try:
+            # Load or create the .po file
+            if os.path.exists(po_file_path):
+                po = polib.pofile(po_file_path)
+            else:
+                po = polib.POFile()
+                po.metadata = {
+                    'Project-Id-Version': '1.0',
+                    'Report-Msgid-Bugs-To': '',
+                    'POT-Creation-Date': '',
+                    'PO-Revision-Date': '',
+                    'Last-Translator': '',
+                    'Language-Team': '',
+                    'MIME-Version': '1.0',
+                    'Content-Type': 'text/plain; charset=UTF-8',
+                    'Content-Transfer-Encoding': '8bit',
+                    'Language': target_lang,
+                }
 
-        # Save the updated .po file
-        po.save(po_file_path)
+            # Find or create the entry
+            entry = po.find(original_text)
+            if entry is None:
+                entry = polib.POEntry(msgid=original_text, msgstr=translation)
+                po.append(entry)
+            else:
+                entry.msgstr = translation
 
-        # Compile to .mo file
-        po.save_as_mofile(mo_file_path)
+            # Add translation method as a comment
+            entry.comment = f'Translated using {method} translation.'
 
-    def _remove_placeholder_entries(self, po):
-        """Remove entries with _PLACEHOLDER_ strings."""
-        to_remove = [entry for entry in po if "_PLACEHOLDER_" in entry.msgid or "_PLACEHOLDER_" in entry.msgstr]
-        for entry in to_remove:
-            po.remove(entry)
-        return po
+            # Save the updated .po file
+            po.save(po_file_path)
+
+            # Compile to .mo file
+            po.save_as_mofile(mo_file_path)
+
+        except Exception as e:
+            print(f"Error updating .po or .mo files: {e}")

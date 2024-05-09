@@ -79,7 +79,7 @@ def cli(input, debug, language, output_dir):
     # Initialize Localizer
     locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
     print("locales_dir:", locales_dir)
-    localizer = Localizer(locale_path=locales_dir, domain="messages",target_lang=target_lang, online=False)
+    localizer = Localizer(locale_path=locales_dir, domain="messages",target_lang=target_lang, online=True)
     _ = localizer._
     #
     click.echo(_("Target language set to: {target_lang}", target_lang=target_lang))

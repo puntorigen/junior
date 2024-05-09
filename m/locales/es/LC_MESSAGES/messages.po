@@ -12,10 +12,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Translated using Online translation.
-msgid "Testing translation"
-msgstr "Pruebas de traducción"
+#. Translated using Offline translation.
+msgid "Target language set to: {v0}"
+msgstr "Lenguaje seteado a: {v0}"
 
 #. Translated using Offline translation.
-msgid "Target language set to: es"
-msgstr "Lenguaje de destino establecido para: es"
+msgid "CTRL-C detected. Exiting gracefully."
+msgstr "CTRL-C detectado. Terminando app .."
+
+#. Translated using Online translation.
+msgid "Processing input: {v0}"
+msgstr "Procesando solicitud: {v0}"
