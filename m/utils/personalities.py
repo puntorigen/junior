@@ -1,1 +1,0 @@
-# utilities for reading and managing personalities

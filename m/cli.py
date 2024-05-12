@@ -68,11 +68,15 @@ def cli(input, debug, language, output_dir):
         target_lang = language
     else:
         from .utils.translator import TranslationService
-        detect = TranslationService().detect_language
+        translator = TranslationService()
         input_text = " ".join(sys.argv[1:])
         try:
-            target_lang = detect(input_text).lower()
+            target_lang = translator.detect_language(input_text).lower()
             click.echo(f"Output language set to: {target_lang}")
+            input_text_english = input_text
+            if not target_lang == "en":
+                input_text_english = translator.translate(input_text, target_lang="en")
+            click.echo(f"Input text in English: {input_text_english}")
         except Exception:
             target_lang = "en"
     # Localization setup (assuming locales are present)
