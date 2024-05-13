@@ -31,7 +31,13 @@ def cli(input, debug, language, output_dir):
     click.setup_language(input, language)
     #click.echo("[yellow]Processing input:[/yellow] {input}", input=input)
     click.echo("*Processing input:* {input}", input=input)
-    click.process(f"Working on '{input}'")
+    def task_test():
+        total_steps = 10
+        for i in range(total_steps):
+            yield f"_Processing_ *step* {i+1}/{total_steps}"
+            time.sleep(0.5)
+
+    click.process(task_test, f"Working on '{input}'")
     if debug:
         click.echo("Debug mode is on")
     if output_dir:

@@ -1,6 +1,7 @@
 import os, sys, time, re
 import rich_click as click
 from rich import print
+from rich.console import Console
 from yaspin import yaspin, Spinner
 from .utils.localizer import Localizer
 from .utils.translator import TranslationService
@@ -11,6 +12,7 @@ class CLIManager:
         self.debug = debug
         self.debug_prefix = debug_prefix
         self.target_lang = "en"
+        self.console = Console()
         locales_dir = os.path.join(os.path.dirname(__file__), "locales")
         self.localizer = Localizer(locale_path=locales_dir, domain="cli", target_lang=self.target_lang, online=True)
         self.translator = TranslationService()
@@ -78,12 +80,25 @@ class CLIManager:
             return self.translator.translate(text, target_lang=target_lang, online=online)
         return text
 
-    def process(self, text):
-        """Process function with spinner."""
-        with yaspin(self.spinner, text=text) as spinner:
-            # Simulated work
-            spinner.text = text + "... done!"
-            spinner.ok("✔")
+    def process(self, task, message="Processing"):
+        """
+        Process function with spinner and dynamic progress updates.
+        The task should be a generator that yields messages indicating progress.
+        """
+        with yaspin(self.spinner, text=message) as spinner:
+            try:
+                for update in task():
+                    formatted_text = self.apply_color(update)
+                    with self.console.capture() as capture:
+                        self.console.print(formatted_text, end="")
+                    spinner.text = capture.get().strip()
+                    time.sleep(0.1)  # Simulate time delay for demonstration
+                spinner.text = ""
+                spinner.ok("✔ "+self._("Done"))
+            except Exception as e:
+                #spinner.text = ""
+                spinner.fail("✖ "+self._("Error"))
+                self.echo("An error occurred: {e}",e=str(e))
 
     def setup_language(self, input_text, language=None):
         """Detect and set language for output based on input or specified language."""
