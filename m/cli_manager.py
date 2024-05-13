@@ -6,9 +6,10 @@ from .utils.localizer import Localizer
 from .utils.translator import TranslationService
 
 class CLIManager:
-    def __init__(self, debug=True):
+    def __init__(self, debug=True, debug_prefix="DEBUG"):
         self.configure_rich_click()
         self.debug = debug
+        self.debug_prefix = debug_prefix
         self.target_lang = "en"
         locales_dir = os.path.join(os.path.dirname(__file__), "locales")
         self.localizer = Localizer(locale_path=locales_dir, domain="cli", target_lang=self.target_lang, online=True)
@@ -65,7 +66,7 @@ class CLIManager:
         formatted_text = self.apply_color(text)
         if not self.debug:
             return
-        formatted_text = f"[green]DEBUG:[/] [dim]{formatted_text.format(*args, **kwargs)}[/]"
+        formatted_text = f"[green]{self.debug_prefix}:[/] [dim]{formatted_text.format(*args, **kwargs)}[/]"
         # Print the formatted text with 'Rich' support
         print(formatted_text)
 
