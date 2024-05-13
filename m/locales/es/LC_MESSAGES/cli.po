@@ -1,0 +1,33 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Translated using Online translation.
+msgid "Output language set to: es"
+msgstr "Lenguaje de salida establecido para: es"
+
+#. Translated using Online translation.
+msgid "Processing input: {v0}"
+msgstr "Entrada de procesamiento: {v0}"
+
+#. Translated using Online translation.
+msgid "[yellow]Processing input:[/] {v0}"
+msgstr "[amarillo]Procesando entrada:[/] {v0}"
+
+#. Translated using Online translation.
+msgid "*Processing input:* {v0}"
+msgstr "*Procesando entrada:* {v0}"
+
+#. Translated using Online translation.
+msgid "Output language set to: _es_"
+msgstr "Lenguaje de salida establecido a: _es_"

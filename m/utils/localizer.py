@@ -18,11 +18,14 @@ class Localizer:
 
     def translate(self, text):
         """Translate the given text using gettext with fallback translation."""
-        #translated_text = gettext.gettext(text)
+        #translated_text = gettext.gettext(text)f
         translated_text = self.searchTranslation(text)
+        #print(f"Translated text: {translated_text}",text)
 
-        if not translated_text is None or translated_text == text: # No translation found in .mo files
+        if not translated_text or translated_text == text: # No translation found in .mo files
+            #print(f"Translating text: {text} to '{self.target_lang}'")
             translated_text = self.translator.translate(text, target_lang=self.target_lang, online=self.online)
+            #print(f"!!Translated text: {translated_text}")
             translation_method = "Online" if self.online else "Offline"
             self.update_po_file(text, translated_text, self.target_lang, translation_method)
 
@@ -30,15 +33,19 @@ class Localizer:
 
     def _(self, text, *args, **kwargs):
         """Format the translated string with dynamic parameters, keeping placeholders intact."""
+        if not args and not kwargs:
+            # Translate the modified text
+            return self.translate(text)
+        
         # Temporarily replace placeholders with unique identifiers
         temp_text, unique_to_placeholder = self._replace_placeholders_with_unique(text, **kwargs)
-
+        
         # Translate the modified text
         translated_temp_text = self.translate(temp_text)
-
+        
         # Restore original placeholders
         translated_text = self._restore_placeholders(translated_temp_text, unique_to_placeholder)
-
+        
         return translated_text.format(*args, **kwargs)
 
     def _replace_placeholders_with_unique(self, text, **kwargs):

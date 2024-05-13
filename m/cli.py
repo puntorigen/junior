@@ -1,33 +1,8 @@
-#import click
+from .cli_manager import CLIManager
 import sys, signal, os, time
-#import gettext
+click = CLIManager()
 #from .utils.brain import Brain
-from .utils.localizer import Localizer
-#from gettext import gettext as _
-import rich_click as click
-from rich import print
-from yaspin import yaspin, Spinner
-from yaspin.spinners import Spinners
-click.rich_click.USE_RICH_MARKUP = True
-click.rich_click.STYLE_ERRORS_SUGGESTION = "magenta italic"
-click.rich_click.ERRORS_SUGGESTION = "Try running the '--help' flag for more information."
-#click.rich_click.ERRORS_EPILOGUE = "To find out more, visit [link=https://www.puntorigen.com/m]https://www.puntorigen.com/m[/link]"
-#click.rich_click.SHOW_ARGUMENTS = True
-#click.rich_click.STYLE_OPTIONS_TABLE_LEADING = 1
-#click.rich_click.STYLE_OPTIONS_TABLE_BOX = "SIMPLE"
-click.rich_click.STYLE_OPTIONS_TABLE_ROW_STYLES = ["bold", ""]
-click.rich_click.STYLE_COMMANDS_TABLE_SHOW_LINES = True
-click.rich_click.STYLE_COMMANDS_TABLE_PAD_EDGE = True
-click.rich_click.STYLE_COMMANDS_TABLE_BOX = "DOUBLE"
-click.rich_click.STYLE_COMMANDS_TABLE_BORDER_STYLE = "red"
-click.rich_click.STYLE_COMMANDS_TABLE_ROW_STYLES = ["magenta", "yellow", "cyan", "green"]
-
-#print("init translation service")
-#trans = TranslationService(cache_dir=None)
-#print("running translate offline")
-#test = trans.translate_offline("Testing translation", target_lang="es")
-#test = _(f"Testing translation", target_lang="es")
-#target_lang = "en"   # Default language
+#from rich import print
 
 # Determine if the output is being redirected (instead of terminal)
 is_output_redirected = not sys.stdout.isatty()
@@ -40,19 +15,11 @@ def cleanup():
     pass
 
 def signal_handler(sig, frame):
-    click.echo(_('CTRL-C detected. Exiting gracefully.'))
+    click.echo('CTRL-C detected. Exiting gracefully.')
     cleanup()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-
-astral = Spinner(["⭐", "✨", "🌟", "🚀"], 200)
-
-def process(text="Processing"):
-    with yaspin(astral, text=f"[{alias_used}] {text}") as spinner:
-        time.sleep(5)  # Simulate work
-        spinner.text = f"[{alias_used}] {text}... done!"
-        spinner.ok("✔")
 
 @click.command()
 @click.argument('input', type=str)
@@ -61,42 +28,14 @@ def process(text="Processing"):
 @click.option('--output-dir', '-o', type=str, default="", help="Directory to save output")
 def cli(input, debug, language, output_dir):
     """Process the input"""
-    global target_lang
-    global _
-    target_lang = "en"
-    if language:
-        target_lang = language
-    else:
-        from .utils.translator import TranslationService
-        translator = TranslationService()
-        input_text = " ".join(sys.argv[1:])
-        try:
-            target_lang = translator.detect_language(input_text).lower()
-            click.echo(f"Output language set to: {target_lang}")
-            input_text_english = input_text
-            if not target_lang == "en":
-                input_text_english = translator.translate(input_text, target_lang="en")
-            click.echo(f"Input text in English: {input_text_english}")
-        except Exception:
-            target_lang = "en"
-    # Localization setup (assuming locales are present)
-    # Initialize Localizer
-    locales_dir = os.path.join(os.path.dirname(__file__), 'locales')
-    print("locales_dir:", locales_dir)
-    localizer = Localizer(locale_path=locales_dir, domain="messages",target_lang=target_lang, online=True)
-    _ = localizer._
-    #
-    click.echo(_("Target language set to: {target_lang}", target_lang=target_lang))
-
-    # Your processing logic
-    click.secho(_("Processing input: {input}",input=input), fg="green")
-    process(f"Processing '{input}'")
+    click.setup_language(input, language)
+    #click.echo("[yellow]Processing input:[/yellow] {input}", input=input)
+    click.echo("*Processing input:* {input}", input=input)
+    click.process(f"Working on '{input}'")
     if debug:
         click.echo("Debug mode is on")
-    if language:
-        click.echo(f"Language: {language}")
     if output_dir:
-        click.echo(f"Output directory: {output_dir}")
+        click.echo("Output directory: {output_dir}", output_dir=output_dir)
 
 if __name__ == '__main__':
     cli()

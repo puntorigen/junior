@@ -2,6 +2,10 @@
 from deep_translator import GoogleTranslator as DeepGoogleTranslator
 from lingua import Language, LanguageDetectorBuilder
 from .cache import Cache
+import warnings
+
+# Ignore all warnings from the huggingface_hub.file_download module
+warnings.filterwarnings("ignore", module="huggingface_hub.file_download")
 
 class TranslationService:
     def __init__(self, cache_dir=None, offline_model='opus-mt', cache_ttl=3600):
@@ -26,26 +30,32 @@ class TranslationService:
     def translate_offline(self, text, target_lang='en'):
         self._load_translator_offline()
         source_lang = self.detect_language(text)
+        if source_lang == target_lang:
+            return text
+        
         cache_key = f"{source_lang}:{target_lang}:{text}"
         cached_translation = self.cache.get(cache_key)
 
-        if cached_translation:
-            return cached_translation
+        #if cached_translation:
+        #    return cached_translation
 
         translation = self.translator_offline.translate(text, source_lang=source_lang, target_lang=target_lang)
         self.cache.set(cache_key, translation, ttl=self.cache_ttl)
-        #print(f"source language: {source_lang}, target language: {target_lang}")
-        #print(f"source text: {text}")
-        #print(f"offline translated text: {translation}")
+        #print(f"!source language: {source_lang}, target language: {target_lang}")
+        #print(f"!source text: {text}")
+        #print(f"!offline translated text: {translation}")
         return translation
 
     def translate_online(self, text, target_lang='en'):
         source_lang = self.detect_language(text)
+        if source_lang == target_lang:
+            return text
+    
         cache_key = f"{source_lang}:{target_lang}:{text}"
         cached_translation = self.cache.get(cache_key)
 
-        if cached_translation:
-            return cached_translation
+        #if cached_translation:
+        #    return cached_translation
 
         translation = self.translator_online.translate(text, source=source_lang, target=target_lang)
         self.cache.set(cache_key, translation, ttl=self.cache_ttl)
@@ -57,8 +67,17 @@ class TranslationService:
     def translate(self, text, target_lang='en', online=True):
         if online:
             try:
-                return self.translate_online(text, target_lang)
+                tmp = self.translate_online(text, target_lang)
+                if tmp == text:
+                    #print("Translating offline")
+                    tmp2 = self.translate_offline(text, target_lang)
+                    #print("tmp2",tmp2)
+                    return tmp2
+                #print("Translating online")
+                return tmp
             except Exception:
+                #print("Translating offline", Exception)
                 return self.translate_offline(text, target_lang)
         else:
+            #print("Translating offline OK")
             return self.translate_offline(text, target_lang)
