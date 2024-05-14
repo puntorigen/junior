@@ -38,7 +38,7 @@ def cli(input, debug, language, output_dir):
             time.sleep(0.5)
 
     click.log("Starting *process*... :smiley:", { "name":"Pablo" })
-    click.process(task_test, f"Working on '{input}'")
+    click.process(task_test, "Working on '{input}'", input=input)
 
     if debug:
         click.echo("Debug mode is on")

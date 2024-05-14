@@ -130,9 +130,9 @@ class CLIManager:
             self.input_text_english = input_text
             if detected_lang != "en":
                 self.input_text_english = self.translate(input_text)
-                self.debug_(f"Input text in _English_: {self.input_text_english}")
+                self.debug_("Input text in _English_: {input}",input=self.input_text_english)
         self.localizer.target_lang = self.target_lang
-        self.debug_(f"Output language set to: _{self.target_lang}_")
+        self.debug_("Output language set to: _{lang}_",lang=self.target_lang)
 
     def command(self, *args, **kwargs):
         """Decorator to wrap rich_click command."""

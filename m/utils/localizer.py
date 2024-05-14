@@ -80,7 +80,7 @@ class Localizer:
         """Update the .po file with the original placeholders intact."""
         po_dir = os.path.join(self.locale_path, target_lang, 'LC_MESSAGES')
         po_file_path = os.path.join(po_dir, f'{self.domain}.po')
-        mo_file_path = os.path.join(po_dir, f'{self.domain}.mo')
+        #mo_file_path = os.path.join(po_dir, f'{self.domain}.mo')
 
         # Ensure the directory exists
         os.makedirs(po_dir, exist_ok=True)
@@ -119,7 +119,7 @@ class Localizer:
             po.save(po_file_path)
 
             # Compile to .mo file
-            po.save_as_mofile(mo_file_path)
+            #po.save_as_mofile(mo_file_path)
 
         except Exception as e:
             print(f"Error updating .po or .mo files: {e}")

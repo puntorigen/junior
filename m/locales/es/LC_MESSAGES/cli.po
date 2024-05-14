@@ -13,41 +13,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Translated using Online translation.
-msgid "Output language set to: es"
-msgstr "Lenguaje de salida establecido para: es"
-
-#. Translated using Online translation.
-msgid "Processing input: {v0}"
-msgstr "Entrada de procesamiento: {v0}"
-
-#. Translated using Online translation.
 msgid "*Processing input:* {v0}"
 msgstr "*Procesando entrada:* {v0}"
 
 #. Translated using Online translation.
-msgid "Output language set to: _es_"
-msgstr "Lenguaje de salida establecido a: _es_"
-
-#. Translated using Online translation.
-msgid "Done"
-msgstr "Listo"
-
-#. Translated using Online translation.
-msgid "Error"
-msgstr "Error"
-
-#. Translated using Online translation.
-msgid "An error occurred: {v0}"
-msgstr "Ocurrió un error: {v0}"
-
-#. Translated using Online translation.
-msgid "CTRL-C detected. Exiting gracefully."
-msgstr "CTRL-C detectado. Saliendo con gracia."
-
-#. Translated using Online translation.
-msgid "Working on 'hola estimado amigo'"
-msgstr "Working on 'hola estimado amigo'"
+msgid "Working on '{v0}'"
+msgstr "Analizando '{v0}'"
 
 #. Translated using Online translation.
 msgid "_Processing_ *step* {v0}/{v1}"
 msgstr "_Procesando_ *paso* {v0}/{v1}"
+
+#. Translated using Online translation.
+msgid "Done"
+msgstr "Listo!"
