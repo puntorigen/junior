@@ -34,10 +34,12 @@ def cli(input, debug, language, output_dir):
     def task_test():
         total_steps = 10
         for i in range(total_steps):
-            yield f"_Processing_ *step* {i+1}/{total_steps}"
+            yield ("_Processing_ *step* {from}/{total}", { "from":i+1, "total": total_steps })
             time.sleep(0.5)
 
+    click.log("Starting *process*... :smiley:", { "name":"Pablo" })
     click.process(task_test, f"Working on '{input}'")
+
     if debug:
         click.echo("Debug mode is on")
     if output_dir:

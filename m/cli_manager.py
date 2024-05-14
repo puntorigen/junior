@@ -1,10 +1,19 @@
 import os, sys, time, re
 import rich_click as click
+#import logging
 from rich import print
 from rich.console import Console
+#from rich.logging import RichHandler
 from yaspin import yaspin, Spinner
 from .utils.localizer import Localizer
 from .utils.translator import TranslationService
+
+# setup logging
+#FORMAT = "%(message)s"
+#logging.basicConfig(
+#    level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+#)
+#log = logging.getLogger("rich")
 
 class CLIManager:
     def __init__(self, debug=True, debug_prefix="DEBUG"):
@@ -79,26 +88,37 @@ class CLIManager:
         if target_lang != detected_lang:
             return self.translator.translate(text, target_lang=target_lang, online=online)
         return text
+    
+    def log(self, message, *args, **kwargs):
+        """Log messages with translation and formatting."""
+        colored = self.apply_color(message)
+        self.console.log(colored, emoji=True, *args, **kwargs)
 
-    def process(self, task, message="Processing"):
+    def process(self, task, message="Processing", *args, **kwargs):
         """
         Process function with spinner and dynamic progress updates.
         The task should be a generator that yields messages indicating progress.
         """
-        with yaspin(self.spinner, text=message) as spinner:
+        message_ = self._(message, **kwargs)
+        def colorize(text):
+            formatted_text = self.apply_color(text)
+            with self.console.capture() as capture:
+                self.console.print(formatted_text, end="")
+            return capture.get().strip()
+            
+        with yaspin(self.spinner, text=message_) as spinner:
             try:
-                for update in task():
-                    formatted_text = self.apply_color(update)
-                    with self.console.capture() as capture:
-                        self.console.print(formatted_text, end="")
-                    spinner.text = capture.get().strip()
+                for template, kwargs in task():
+                    translated_update = self._(template, **kwargs)
+                    spinner.text = colorize(translated_update)
                     time.sleep(0.1)  # Simulate time delay for demonstration
                 spinner.text = ""
-                spinner.ok("✔ "+self._("Done"))
+                spinner.ok(colorize("[green]✔[/] "+self._("Done")))
             except Exception as e:
                 #spinner.text = ""
-                spinner.fail("✖ "+self._("Error"))
-                self.echo("An error occurred: {e}",e=str(e))
+                spinner.fail(colorize("[red]✖[/] "+self._("Error")))
+                self.console.print_exception(show_locals=True)
+                #self.echo("An error occurred: {e}",e=str(e))
 
     def setup_language(self, input_text, language=None):
         """Detect and set language for output based on input or specified language."""

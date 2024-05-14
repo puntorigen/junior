@@ -29,12 +29,8 @@ msgid "Output language set to: _es_"
 msgstr "Lenguaje de salida establecido a: _es_"
 
 #. Translated using Online translation.
-msgid "✔ Done"
-msgstr " Hecho"
-
-#. Translated using Online translation.
 msgid "Done"
-msgstr "Hecho"
+msgstr "Listo"
 
 #. Translated using Online translation.
 msgid "Error"
@@ -47,3 +43,11 @@ msgstr "Ocurrió un error: {v0}"
 #. Translated using Online translation.
 msgid "CTRL-C detected. Exiting gracefully."
 msgstr "CTRL-C detectado. Saliendo con gracia."
+
+#. Translated using Online translation.
+msgid "Working on 'hola estimado amigo'"
+msgstr "Working on 'hola estimado amigo'"
+
+#. Translated using Online translation.
+msgid "_Processing_ *step* {v0}/{v1}"
+msgstr "_Procesando_ *paso* {v0}/{v1}"
