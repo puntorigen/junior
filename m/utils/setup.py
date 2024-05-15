@@ -113,8 +113,12 @@ class Setup:
                 if meets_memory and meets_disk_space and meets_gpu:
                     just_model = name.replace("ollama/","")
                     click.echo("Downloading and configuring local model '{name}'...",name=just_model)
-                    # TODO request model download (ollama pull) and configuration
-                    self.docker_helper.execute_command(f"ollama pull {just_model}")
+                    # TODO (improve download visibility) request model download (ollama pull) and configuration
+                    try:
+                        for output in self.docker_helper.execute_command_stream(f"ollama pull {just_model}"):
+                            print(output, end="")
+                    except Exception as e:
+                        print(f"An error ocurred streaming the output: {str(e)}")
                     self.settings["LLM"] = self.settings.get("LLM", {})
                     self.settings["LLM"]["local"] = self.settings["LLM"].get("local", {})
                     self.settings["LLM"]["local"][name] = {"model": just_model}

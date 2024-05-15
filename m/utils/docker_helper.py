@@ -253,6 +253,23 @@ class DockerHelper:
         exec_result = self.container.exec_run(command, stdout=True, stderr=True)
         return exec_result.output.decode()
 
+    def execute_command_stream(self, command: Union[str, List[str]]):
+        """
+        Execute a command within the Docker instance and stream output.
+
+        Args:
+            command (Union[str, List[str]]): Command(s) to execute.
+
+        Yields:
+            str: Captured output from the executed command.
+        """
+        exec_result = self.container.exec_run(command, stdout=True, stderr=True, stream=True, demux=True)
+        for stdout, stderr in exec_result.output:
+            if stdout:
+                yield stdout.decode()
+            if stderr:
+                yield stderr.decode()
+                
     def retrieve_file(self, container_path: str, local_path: str):
         """Retrieve a file from the Docker instance to the local filesystem.
 
