@@ -61,10 +61,7 @@ class Setup:
         llm_available = "LLM" in self.settings
 
         if not llm_available:
-            specs = {
-                "memory":self.system.get_memory_info(),
-                "disk":self.system.get_disk_info()
-            }
+            specs = self.system.get_basic_info()
             ram_ok = specs["memory"]["total"] >= 16
             disk_ok = specs["disk"]["free"] >= 100
 
@@ -93,11 +90,8 @@ class Setup:
 
     def setup_local_models(self):
         """Set up local models using Docker and Ollama."""
-        specs = {
-            "memory":self.system.get_memory_info(),
-            "disk":self.system.get_disk_info()
-        }
-        click.echo(f"System specs: RAM: {specs['memory']['total']} GB, Free Disk Space: {specs['disk']['free']} GB")
+        specs = self.system.get_basic_info()
+        click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
 
         # Ensure Docker requirements
         self.check_docker_requirements()
@@ -105,7 +99,9 @@ class Setup:
         # Start Ollama server if not already running
         if not self.docker_helper.container_exists(self.local_container_name):
             click.echo("Starting Ollama Docker instance...")
-            self.docker_helper.create_instance(name=self.local_container_name, network="bridge")
+            self.docker_helper.create_instance(image=self.docker_image_ollama, command="", name=self.local_container_name, network="bridge")
+        else:
+            self.docker_helper.get_running_container(self.local_container_name)
 
         # Configure and download local models
         for name, config in self.llm_configs.items():
@@ -115,13 +111,15 @@ class Setup:
                 meets_gpu = (not config["minimum_gpu_required"] or specs["gpu"])
 
                 if meets_memory and meets_disk_space and meets_gpu:
-                    click.echo(f"Downloading and configuring local model '{name}'...")
-                    # Simulate model download and configuration
+                    just_model = name.replace("ollama/","")
+                    click.echo("Downloading and configuring local model '{name}'...",name=just_model)
+                    # TODO request model download (ollama pull) and configuration
+                    self.docker_helper.execute_command(f"ollama pull {just_model}")
                     self.settings["LLM"] = self.settings.get("LLM", {})
                     self.settings["LLM"]["local"] = self.settings["LLM"].get("local", {})
-                    self.settings["LLM"]["local"][name] = {"model": name}
+                    self.settings["LLM"]["local"][name] = {"model": just_model}
                 else:
-                    click.echo(f"Insufficient system resources for local model '{name}'.")
+                    click.echo("Insufficient system resources for local model '{name}'.",name=name)
 
     def setup_remote_models(self):
         """Set up remote models with API keys."""

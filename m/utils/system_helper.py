@@ -8,20 +8,20 @@ import speedtest
 class SystemInfo:
     @staticmethod
     def get_memory_info():
-        """Get the available and total memory in bytes."""
+        """Get the available and total memory in GB."""
         mem = psutil.virtual_memory()
         return {
-            "total": mem.total,
-            "available": mem.available
+            "total": mem.total/1024/1024/1024,
+            "available": mem.available/1024/1024/1024
         }
 
     @staticmethod
     def get_disk_info(path="/"):
-        """Get the available and total disk space in bytes for the given path."""
+        """Get the available and total disk space in GB for the given path."""
         disk = shutil.disk_usage(path)
         return {
-            "total": disk.total,
-            "free": disk.free
+            "total": disk.total/1024/1024/1024,
+            "free": disk.free/1024/1024/1024
         }
 
     @staticmethod
@@ -77,6 +77,14 @@ class SystemInfo:
             "ping_ms": results["ping"]
         }
 
+    @staticmethod
+    def get_basic_info():
+        """Get basic system memory information."""
+        return {
+            "memory": SystemInfo.get_memory_info(),
+            "disk": SystemInfo.get_disk_info()
+        }
+    
     @staticmethod
     def get_all_info():
         """Get all system information."""

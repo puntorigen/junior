@@ -34,34 +34,8 @@ msgid "Setting up local LLMs..."
 msgstr "Configurando LLMs locales..."
 
 #. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 164818333696 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"164818333696 GB"
-
-#. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 164815470592 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"164815470592 GB"
-
-#. Translated using Online translation.
 msgid "Starting Ollama Docker instance..."
 msgstr "Iniciando la instancia de Ollama Docker..."
-
-#. Translated using Online translation.
-msgid "Downloading and configuring local model 'ollama/mistral:instruct'..."
-msgstr ""
-"Descargando y configurando el modelo local 'ollama/mistral:instruct'..."
-
-#. Translated using Online translation.
-msgid "Downloading and configuring local model 'ollama/llama3:instruct'..."
-msgstr ""
-"Descargando y configurando el modelo local 'ollama/llama3:instruct'..."
-
-#. Translated using Online translation.
-msgid "Downloading and configuring local model 'ollama/phi3:instruct'..."
-msgstr "Descargando y configurando el modelo local 'ollama/phi3:instruct'..."
 
 #. Translated using Online translation.
 msgid "Setting up remote LLMs..."
@@ -72,41 +46,9 @@ msgid "Please enter your API keys for remote LLMs:"
 msgstr "Introduzca las claves de su API para LLMs remotos:"
 
 #. Translated using Online translation.
-msgid "Enter Anthropic API Key"
-msgstr "Introduzca la clave de API Antrópica"
-
-#. Translated using Online translation.
-msgid "Enter OpenAI API Key"
-msgstr "Introduzca la clave de API de OpenAI"
-
-#. Translated using Online translation.
-msgid "Enter Groq API Key"
-msgstr "Introduzca la clave de la API de Groq"
-
-#. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 163344519168 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"163344519168 GB"
-
-#. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 163344158720 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"163344158720 GB"
-
-#. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 163343511552 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"163343511552 GB"
-
-#. Translated using Online translation.
-msgid "System specs: RAM: 34359738368 GB, Free Disk Space: 163346227200 GB"
-msgstr ""
-"Especificaciones del sistema: RAM: 34359738368 GB, espacio libre en disco: "
-"163346227200 GB"
-
-#. Translated using Online translation.
 msgid "Enter {v0} API Key"
 msgstr "Introduzca la clave de API {v0}"
+
+#. Translated using Online translation.
+msgid "Downloading and configuring local model '{v0}'..."
+msgstr "Descargando y configurando el modelo local '{v0}'..."

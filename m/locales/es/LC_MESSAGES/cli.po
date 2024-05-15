@@ -27,3 +27,7 @@ msgstr "_Procesando_ *paso* {v0}/{v1}"
 #. Translated using Online translation.
 msgid "Done"
 msgstr "Listo!"
+
+#. Translated using Online translation.
+msgid "CTRL-C detected. Exiting gracefully."
+msgstr "CTRL-C detectado. Saliendo con gracia."

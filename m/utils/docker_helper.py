@@ -91,7 +91,27 @@ class DockerHelper:
         containers = self.client.containers.list(all=True, filters={"name": container_name})
         return any(container.name == container_name for container in containers)
     
-    def create_instance(self, name: str = None, network: str = None):
+    def get_running_container(self, container_name):
+        """
+        Retrieve a running container by its name.
+        
+        :param container_name: Name of the container to find.
+        :return: Docker container object if found and running, None otherwise.
+        """
+        try:
+            containers = self.client.containers.list(filters={"name": container_name})
+            for container in containers:
+                if container.name == container_name and container.status == 'running':
+                    self.container = container
+                    return container
+            return None
+        except docker.errors.NotFound:
+            return None
+        except docker.errors.APIError as e:
+            print(f"API error occurred: {e}")
+            return None
+    
+    def create_instance(self, image: str = None, command: str = "tail -f /dev/null", name: str = None, network: str = None):
         """Create a new Docker instance.
 
         Args:
@@ -105,16 +125,16 @@ class DockerHelper:
             raise RuntimeError("Docker is not installed or not running.")
 
         try:
-            self.client.images.pull(self.image)
+            self.client.images.pull(image)
         except docker.errors.APIError as e:
-            print(f"Error pulling Docker image {self.image}: {e}")
+            print(f"Error pulling Docker image {image}: {e}")
             raise RuntimeError("Unable to pull Docker image. Please verify your credentials and image name.")
 
         name = name or self.container_name
 
         container_params = {
-            "image": self.image,
-            "command": "tail -f /dev/null",  # Keep the container running
+            "image": image,
+            "command": command,  # Keep the container running
             "detach": True,
             "name": name
         }
