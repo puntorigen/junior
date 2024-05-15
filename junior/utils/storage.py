@@ -9,11 +9,11 @@ class EncryptedJSONStorage:
 
         Args:
             filename (str): Name of the JSON file to store data.
-            directory (str, optional): Directory to store the JSON file. Defaults to ~/.m.
+            directory (str, optional): Directory to store the JSON file. Defaults to ~/.junior.
         """
         if directory is None:
-            # Default to ~/.m directory
-            directory = os.path.join(Path.home(), ".m")
+            # Default to ~/.junior directory
+            directory = os.path.join(Path.home(), ".junior")
         else:
             directory = Path(directory)
 
@@ -24,7 +24,7 @@ class EncryptedJSONStorage:
         self.filepath = os.path.join(directory, filename)
 
         # Use the machine-specific key
-        print(f"Machine ID: {self._get_machine_id()}")
+        #print(f"Machine ID: {self._get_machine_id()}")
         self.cipher = Fernet(self._generate_machine_key())
 
     def _get_machine_id(self) -> str:

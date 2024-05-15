@@ -12,8 +12,8 @@ click = CLIManager(domain="setup")
 class Setup:
     def __init__(self, language="en"):
         """Initialize the Setup class."""
-        self.home_settings_path = Path.home() / ".m" / "settings.json"
-        self.local_settings_path = Path.cwd() / ".m.json"
+        self.home_settings_path = Path.home() / ".junior" / "settings.json"
+        self.local_settings_path = Path.cwd() / ".junior.json"
         self.encrypted_storage = EncryptedJSONStorage(str(self.home_settings_path))
         self.system = SystemInfo()
         self.docker_helper = DockerHelper()

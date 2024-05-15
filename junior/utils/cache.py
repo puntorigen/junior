@@ -12,7 +12,7 @@ class Cache:
         """
         if directory is None:
             # Default to ~/.m directory
-            directory = os.path.join(Path.home(), ".m")
+            directory = os.path.join(Path.home(), ".junior")
         else:
             # Use the provided directory
             directory = Path(directory)

@@ -4,7 +4,7 @@ import json
 from .storage import EncryptedJSONStorage
 
 class TokenTracker:
-    def __init__(self, storage_path: Path = Path.home() / ".m" / "tracking.json"):
+    def __init__(self, storage_path: Path = Path.home() / ".junior" / "tracking.json"):
         """Initialize the TokenTracker."""
         self.storage = EncryptedJSONStorage(str(storage_path))
         self.tracking_data = self.load_tracking_data()
