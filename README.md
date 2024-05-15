@@ -1,4 +1,4 @@
-# Junior
+<img src="./logo.jpg" width="100"/><br/>
 
 Junior is a command-line tool that provides automated support for working with your current local folder, like code development or document management. This tool can generate code snippets, refactor project structures, generate file analysis and documentation, add methods to an existing class, generate unit tests, create a dockerFile for any project, and much more. Plugins can also be used to extend the functionality. The final intention is to make it as autonomous as posible, much like 'devin', but for the command-line.
 
