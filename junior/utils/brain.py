@@ -56,6 +56,7 @@ class Brain:
         llm_settings = self.settings.get("LLM", {}).get("local", {})
 
         if llm_settings:
+            # TODO consume the existing methods for this on Setup.py
             click.echo("Local models available. Checking Ollama Docker instance...")
             if not self.docker_helper.container_exists(self.setup.local_container_name):
                 click.echo("Starting Ollama Docker instance...")
@@ -164,4 +165,4 @@ if __name__ == "__main__":
 
     result = brain.prompt(prompt_str, schema)
     if result:
-        click.echo(result.json(indent=4))
+        click.echo(result.model_dump_json(indent=4))
