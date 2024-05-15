@@ -1,4 +1,5 @@
 from .cli_manager import CLIManager
+from .utils.setup import Setup
 import sys, signal, os, time
 click = CLIManager()
 #from .utils.brain import Brain
@@ -29,6 +30,9 @@ signal.signal(signal.SIGINT, signal_handler)
 def cli(input, debug, language, output_dir):
     """Process the input"""
     click.setup_language(input, language)
+    setup = Setup(language=click.target_lang)
+    setup.run_initial_setup()
+    click.log("loaded settings: ",setup.settings)
     #click.echo("[yellow]Processing input:[/yellow] {input}", input=input)
     click.echo("*Processing input:* {input}", input=input)
     def task_test():

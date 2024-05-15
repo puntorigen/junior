@@ -2,23 +2,24 @@ import os
 from pathlib import Path
 from typing import Dict
 import json
-import click
+#import click
 from .storage import EncryptedJSONStorage
 from .system_helper import SystemInfo
 from .docker_helper import DockerHelper
 from .llm_configs import llm_configs
-
+from ..cli_manager import CLIManager
+click = CLIManager(domain="setup")
 class Setup:
-    def __init__(self):
+    def __init__(self, language="en"):
         """Initialize the Setup class."""
         self.home_settings_path = Path.home() / ".m" / "settings.json"
         self.local_settings_path = Path.cwd() / ".m.json"
         self.encrypted_storage = EncryptedJSONStorage(str(self.home_settings_path))
-        self.system = System()
+        self.system = SystemInfo()
         self.docker_helper = DockerHelper()
         self.docker_image_ollama = "ollama/ollama"
         self.local_container_name = "ollama_server"
-
+        click.setup_language(language=language)
         self.llm_configs = llm_configs
         self.settings = self.load_settings()
 
@@ -60,11 +61,14 @@ class Setup:
         llm_available = "LLM" in self.settings
 
         if not llm_available:
-            specs = self.system.get_specs()
+            specs = {
+                "memory":self.system.get_memory_info(),
+                "disk":self.system.get_disk_info()
+            }
             ram_ok = specs["memory"]["total"] >= 16
             disk_ok = specs["disk"]["free"] >= 100
 
-            click.echo(f"System specs: RAM: {specs['memory']['total']} GB, Free Disk Space: {specs['disk']['free']} GB")
+            click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
 
             if ram_ok and disk_ok:
                 self.check_docker_requirements()
@@ -89,7 +93,10 @@ class Setup:
 
     def setup_local_models(self):
         """Set up local models using Docker and Ollama."""
-        specs = self.system.get_specs()
+        specs = {
+            "memory":self.system.get_memory_info(),
+            "disk":self.system.get_disk_info()
+        }
         click.echo(f"System specs: RAM: {specs['memory']['total']} GB, Free Disk Space: {specs['disk']['free']} GB")
 
         # Ensure Docker requirements
@@ -123,7 +130,7 @@ class Setup:
             self.settings["LLM"] = self.settings.get("LLM", {})
             self.settings["LLM"]["remote"] = self.settings["LLM"].get("remote", {})
             self.settings["LLM"]["remote"][name] = click.prompt(
-                f"Enter {name} API Key",
+                ("Enter {name} API Key",{ "name":name }),
                 default=self.settings["LLM"]["remote"].get(name, "")
             )
 
@@ -158,7 +165,7 @@ class Setup:
         elif command == "setup":
             self.re_run_setup(mode="global")
         else:
-            click.echo(f"Unknown command: {command}")
+            click.echo("Unknown command: {command}",command=command)
 
 # Example usage
 if __name__ == "__main__":

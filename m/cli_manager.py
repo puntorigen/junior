@@ -16,14 +16,15 @@ from .utils.translator import TranslationService
 #log = logging.getLogger("rich")
 
 class CLIManager:
-    def __init__(self, debug=True, debug_prefix="DEBUG"):
+    def __init__(self, debug=True, debug_prefix="DEBUG", domain="cli"):
         self.configure_rich_click()
         self.debug = debug
         self.debug_prefix = debug_prefix
+        self.domain = domain
         self.target_lang = "en"
         self.console = Console()
         locales_dir = os.path.join(os.path.dirname(__file__), "locales")
-        self.localizer = Localizer(locale_path=locales_dir, domain="cli", target_lang=self.target_lang, online=True)
+        self.localizer = Localizer(locale_path=locales_dir, domain=domain, target_lang=self.target_lang, online=True)
         self.translator = TranslationService()
         self.input_text_english = ""
         self.color_mapping = {
@@ -70,6 +71,25 @@ class CLIManager:
         formatted_text = self.apply_color(translated_text)
         # Print the formatted text with 'Rich' support
         print(formatted_text)
+
+    def prompt(self, text, *args, **kwargs):
+        """Prompt a question to the user with formatting support."""
+        translated_text = text
+        # check if text is a string or a tuple
+        if isinstance(text, str):
+            # Translates the text to the user lang
+            translated_text = self._(text)
+        elif isinstance(text, tuple):
+            template, kw = text
+            # Translates the tuple text with (kwargs) into the user lang
+            translated_text = self._(template, **kw)
+        # Apply color formatting
+        formatted_text = self.apply_color(translated_text)
+        # Prompts the formatted text with 'Rich' support
+        return click.prompt(formatted_text, *args, **kwargs)
+
+    def Choice(self, *args, **kwargs):
+        click.Choice(*args, **kwargs)
     
     def debug_(self, text, *args, **kwargs):
         """Echo debug messages with formatting."""
@@ -77,7 +97,7 @@ class CLIManager:
         formatted_text = self.apply_color(text)
         if not self.debug:
             return
-        formatted_text = f"[green]{self.debug_prefix}:[/] [dim]{formatted_text.format(*args, **kwargs)}[/]"
+        formatted_text = f"[green][dim]{self.domain}:{self.debug_prefix}: [blue]{formatted_text.format(*args, **kwargs)}[/][/]"
         # Print the formatted text with 'Rich' support
         print(formatted_text)
 
@@ -120,7 +140,7 @@ class CLIManager:
                 self.console.print_exception(show_locals=True)
                 #self.echo("An error occurred: {e}",e=str(e))
 
-    def setup_language(self, input_text, language=None):
+    def setup_language(self, input_text="", language=None):
         """Detect and set language for output based on input or specified language."""
         if language:
             self.target_lang = language

@@ -80,6 +80,17 @@ class DockerHelper:
 
         return "not running"
 
+    def container_exists(self, container_name):
+        """
+        Check if a container with the specified name exists.
+        
+        :param container_name: Name of the container to check.
+        :return: True if the container exists, False otherwise.
+        """
+        # List all containers, filter by name
+        containers = self.client.containers.list(all=True, filters={"name": container_name})
+        return any(container.name == container_name for container in containers)
+    
     def create_instance(self, name: str = None, network: str = None):
         """Create a new Docker instance.
 
