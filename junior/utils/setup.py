@@ -65,23 +65,22 @@ class Setup:
             ram_ok = specs["memory"]["total"] >= 16
             disk_ok = specs["disk"]["free"] >= 100
 
-            click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
-
             if ram_ok and disk_ok:
                 self.check_docker_requirements()
-                llm_choice = click.prompt(
+                llm_choice = click.select(
                     "Do you prefer to use only local LLMs, a combination of remote and local, or just remote?",
-                    type=click.Choice(['local', 'remote', 'remote & local']),
-                    default="remote & local"
+                    choices=['local', 'remote', 'remote and local'],
+                    default="remote and local"
                 )
-                if llm_choice in ["local", "remote & local"]:
-                    click.echo("Setting up local LLMs...")
+                if llm_choice in ["local", "remote and local"]:
+                    click.echo("Setting up *local* LLMs...")
                     self.setup_local_models()
-                if llm_choice in ["remote", "remote & local"]:
-                    click.echo("Setting up remote LLMs...")
+                if llm_choice in ["remote", "remote and local"]:
+                    click.echo("Setting up *remote* LLMs...")
                     self.setup_remote_models()
             else:
-                click.echo("Your system does not meet the minimum requirements for local models.")
+                click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
+                click.echo("Your system does not meet the minimum requirements for *local* models.")
                 self.setup_remote_models()
 
         if "LLM" not in self.settings:
@@ -127,12 +126,12 @@ class Setup:
 
     def setup_remote_models(self):
         """Set up remote models with API keys."""
-        click.echo("Please enter your API keys for remote LLMs:")
+        click.echo("Please enter your *API keys* for *remote* LLMs:")
         for name in ["Anthropic", "OpenAI", "Groq"]:
             self.settings["LLM"] = self.settings.get("LLM", {})
             self.settings["LLM"]["remote"] = self.settings["LLM"].get("remote", {})
             self.settings["LLM"]["remote"][name] = click.prompt(
-                ("Enter {name} API Key",{ "name":name }),
+                ("Enter *{name}* API Key",{ "name":name }),
                 default=self.settings["LLM"]["remote"].get(name, "")
             )
 

@@ -52,3 +52,51 @@ msgstr "Introduzca la clave de API {v0}"
 #. Translated using Online translation.
 msgid "Downloading and configuring local model '{v0}'..."
 msgstr "Descargando y configurando el modelo local '{v0}'..."
+
+#. Translated using Online translation.
+msgid ""
+"Do you prefer to use only *local* LLMs, a combination of *remote and local*,"
+" or just *remote*?"
+msgstr ""
+"¿Prefieres usar solo *local* LLMs, una combinación de *remote y local*, o "
+"simplemente *remote*?"
+
+#. Translated using Online translation.
+msgid "local"
+msgstr "local"
+
+#. Translated using Online translation.
+msgid "remote"
+msgstr "remoto"
+
+#. Translated using Online translation.
+msgid "remote & local"
+msgstr "& local remoto"
+
+#. Translated using Online translation.
+msgid "Setting up *local* LLMs..."
+msgstr "Configurando *local* LLMs..."
+
+#. Translated using Online translation.
+msgid ""
+"Do you prefer to use only local LLMs, a combination of*remote and local, or "
+"just remote?"
+msgstr ""
+"¿Prefiere utilizar sólo LLM locales, una combinación de*remote y local, o "
+"simplemente remoto?"
+
+#. Translated using Online translation.
+msgid "remote and local"
+msgstr "remoto y local"
+
+#. Translated using Online translation.
+msgid "Setting up *remote* LLMs..."
+msgstr "Configuración *remote* LLMs..."
+
+#. Translated using Online translation.
+msgid "Please enter your *API keys* for *remote* LLMs:"
+msgstr "Por favor, introduzca las teclas *API* para *remote* LLMs:"
+
+#. Translated using Online translation.
+msgid "Enter *{v0}* API Key"
+msgstr "Introduzca *{v0}* Clave API"

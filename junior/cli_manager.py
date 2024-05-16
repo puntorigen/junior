@@ -3,6 +3,8 @@ import rich_click as click
 #import logging
 from rich import print
 from rich.console import Console
+from rich.prompt import Prompt
+from simple_term_menu import TerminalMenu
 #from rich.logging import RichHandler
 from yaspin import yaspin, Spinner
 from .utils.localizer import Localizer
@@ -87,6 +89,34 @@ class CLIManager:
         formatted_text = self.apply_color(translated_text)
         # Prompts the formatted text with 'Rich' support
         return click.prompt(formatted_text, *args, **kwargs)
+
+    def select(self, text, choices: list[str], default):
+        """Prompt a question to the user with choices and formatting support."""
+        # uses rich prompt
+        translated_text = text
+        # check if text is a string or a tuple
+        if isinstance(text, str):
+            # Translates the text to the user lang
+            translated_text = self._(text)
+        elif isinstance(text, tuple):
+            template, kw = text
+            # Translates the tuple text with (kwargs) into the user lang
+            translated_text = self._(template, **kw)
+        # Apply color formatting
+        formatted_text = self.apply_color(translated_text)
+
+        # Translate the choices and map them back to the original choices
+        translated_choices = [self._(choice) for choice in choices]
+        choice_map = {translated: original for translated, original in zip(translated_choices, choices)}
+
+        # Display the prompt with translated choices using rich
+        #translated_default = self._(default)
+        #selected_translated_choice = Prompt.ask(formatted_text, choices=translated_choices, default=translated_default)
+        selected_translated_choice = TerminalMenu(translated_choices, title=formatted_text)
+        selected_translated_choice.show()
+
+        # Map the selected translated choice back to the original choice
+        return choice_map[selected_translated_choice.chosen_menu_entry]
 
     def Choice(self, *args, **kwargs):
         click.Choice(*args, **kwargs)
