@@ -25,7 +25,7 @@ class CLIManager:
         self.domain = domain
         self.target_lang = "en"
         self.console = Console()
-        locales_dir = os.path.join(os.path.dirname(__file__), "locales")
+        locales_dir = os.path.join(os.path.dirname(__file__), "translations")
         self.localizer = Localizer(locale_path=locales_dir, domain=domain, target_lang=self.target_lang, online=True)
         self.translator = TranslationService()
         self.input_text_english = ""

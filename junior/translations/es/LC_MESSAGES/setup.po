@@ -70,10 +70,6 @@ msgid "remote"
 msgstr "remoto"
 
 #. Translated using Online translation.
-msgid "remote & local"
-msgstr "& local remoto"
-
-#. Translated using Online translation.
 msgid "Setting up *local* LLMs..."
 msgstr "Configurando *local* LLMs..."
 

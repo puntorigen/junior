@@ -5,7 +5,7 @@ import gettext
 from .translator import TranslationService
 
 class Localizer:
-    def __init__(self, locale_path='locales', domain='messages', cache_dir=None, cache_ttl=3600, target_lang='en', online=True):
+    def __init__(self, locale_path='translations', domain='messages', cache_dir=None, cache_ttl=3600, target_lang='en', online=True):
         self.locale_path = locale_path
         self.domain = domain
         self.translator = TranslationService(cache_dir=cache_dir, cache_ttl=cache_ttl)
