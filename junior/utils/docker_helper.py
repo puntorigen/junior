@@ -91,19 +91,26 @@ class DockerHelper:
         containers = self.client.containers.list(all=True, filters={"name": container_name})
         return any(container.name == container_name for container in containers)
     
-    def get_running_container(self, container_name):
+    def search_and_start_container(self, container_name):
         """
-        Retrieve a running container by its name.
+        Retrieve a container by its name and starts it if needed.
         
         :param container_name: Name of the container to find.
-        :return: Docker container object if found and running, None otherwise.
+        :return: "running" if docker was running, "started" if docker image was just started, None if not found.
         """
         try:
-            containers = self.client.containers.list(filters={"name": container_name})
+            containers = self.client.containers.list(all=True,filters={"name": container_name})
             for container in containers:
                 if container.name == container_name and container.status == 'running':
                     self.container = container
-                    return container
+                    return "running"
+                elif container.name == container_name:
+                    # run container if status is not running
+                    #print(f"Container '{container_name}' found but not running. Starting container...",container)
+                    container.start()
+                    self.container = container
+                    return "started"
+                    
             return None
         except docker.errors.NotFound:
             return None

@@ -112,3 +112,15 @@ msgid ""
 msgstr ""
 "Docker no está instalado ni en ejecución. Por favor instale Docker y vuelva "
 "a ejecutar 'junior' si desea utilizar LLM locales."
+
+#. Translated using Online translation.
+msgid "Searching running Ollama Docker instance..."
+msgstr "Buscando la instancia de Ollama Docker..."
+
+#. Translated using Online translation.
+msgid "Searching Ollama Docker instance..."
+msgstr "Buscando la instancia de Ollama Docker..."
+
+#. Translated using Online translation.
+msgid "Ollama Docker instance already running."
+msgstr "Ollama Docker instancia ya en ejecución."

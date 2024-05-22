@@ -1,4 +1,4 @@
-import os
+import os, time
 from pathlib import Path
 from typing import Dict
 import json
@@ -65,6 +65,11 @@ class Setup:
             if self.settings and "LLM" in self.settings and "local" in self.settings["LLM"]:
                 self.settings["LLM"].pop("local", None)
 
+        # if self.settings["LLM"]["local"] is not empty and docker is running, setup local models if needed
+        if self.settings and "LLM" in self.settings and "local" in self.settings["LLM"]:
+            self.setup_local_models()
+
+        # check if we have any LLMs available
         llm_available = self.settings["LLM"] if self.settings and "LLM" in self.settings else None
 
         if not llm_available:
@@ -91,7 +96,7 @@ class Setup:
                     click.echo("Setting up *remote* LLMs...")
                     self.setup_remote_models()
             else:
-                click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
+                click.echoDim("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
                 click.echo("Your system does not meet the minimum requirements for *local* models.")
                 self.setup_remote_models()
 
@@ -99,20 +104,40 @@ class Setup:
             click.echo("At least one LLM API key is required.")
             exit(1)
 
+    def local_llm_models_installed(self):
+        """Check which local LLM models are installed."""
+        query = self.docker_helper.execute_command(f"ollama list")
+        # Splitting the query into lines
+        lines = query.strip().split('\n')
+        # Extract the model names from each line, except the header
+        model_names = []
+        for line in lines[1:]:  # Start from 1 to skip the header
+            model_name = line.split()[0]  # Split the line and get the first element
+            model_names.append(model_name)
+        
+        return model_names
+
     def setup_local_models(self):
         """Set up local models using Docker and Ollama."""
         specs = self.system.get_basic_info()
-        click.echo("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
+        click.debug_("System specs: RAM: {total} GB, Free Disk Space: {free} GB",total=specs['memory']['total'],free=specs['disk']['free'])
 
         # Ensure Docker requirements
         self.check_docker_requirements()
 
         # Start Ollama server if not already running
         if not self.docker_helper.container_exists(self.local_container_name):
-            click.echo("Starting Ollama Docker instance...")
+            click.echoDim("Starting Ollama Docker instance...")
             self.docker_helper.create_instance(image=self.docker_image_ollama, command="", name=self.local_container_name, network="bridge")
         else:
-            self.docker_helper.get_running_container(self.local_container_name)
+            click.debug_("Searching Ollama Docker instance...")
+            state = self.docker_helper.search_and_start_container(self.local_container_name)
+            if not state:
+                click.warn_("Error: Could not find the existing Ollama Docker instance.")
+                exit(1)
+            if state == "started":
+                click.echoDim("Starting Ollama server. Waiting 20 seconds for it to be ready...")
+                time.sleep(20)
 
         # Configure and download local models
         for name, config in self.llm_configs.items():
@@ -123,16 +148,21 @@ class Setup:
 
                 if meets_memory and meets_disk_space and meets_gpu:
                     just_model = name.replace("ollama/","")
-                    click.echo("Downloading and configuring local model '{name}'...",name=just_model)
-                    # TODO (improve download visibility) request model download (ollama pull) and configuration
-                    try:
-                        for output in self.docker_helper.execute_command_stream(f"ollama pull {just_model}"):
-                            print(output, end="")
-                    except Exception as e:
-                        print(f"An error ocurred streaming the output: {str(e)}")
+                    installed = self.local_llm_models_installed()
                     self.settings["LLM"] = self.settings.get("LLM", {})
                     self.settings["LLM"]["local"] = self.settings["LLM"].get("local", {})
-                    self.settings["LLM"]["local"][name] = {"model": just_model}
+                    if just_model not in installed:
+                        click.echo("Downloading and configuring local model '{name}'...",name=just_model)
+                        try:
+                            for output in self.docker_helper.execute_command_stream(f"ollama pull {just_model}"):
+                                print(output, end="")
+                            self.settings["LLM"]["local"][name] = {"model": just_model}                            
+                        except Exception as e:
+                            click.warn_("An error ocurred downloading model: {model}",model=just_model)
+                            # remove the model from the settings if failed downloading and exists on settings
+                            if name in self.settings["LLM"]["local"]:
+                                self.settings["LLM"]["local"].pop(name)
+
                 else:
                     click.echo("Insufficient system resources for local model '{name}'.",name=name)
 
