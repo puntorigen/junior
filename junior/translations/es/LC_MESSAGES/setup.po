@@ -87,12 +87,28 @@ msgstr "remoto y local"
 
 #. Translated using Online translation.
 msgid "Setting up *remote* LLMs..."
-msgstr "Configuración *remote* LLMs..."
+msgstr "Configurando modelos *remotos*..."
 
 #. Translated using Online translation.
 msgid "Please enter your *API keys* for *remote* LLMs:"
-msgstr "Por favor, introduzca las teclas *API* para *remote* LLMs:"
+msgstr "Por favor, configure las *API keys* de los modelos *remotos*:"
 
 #. Translated using Online translation.
 msgid "Enter *{v0}* API Key"
-msgstr "Introduzca *{v0}* Clave API"
+msgstr "Introduzca la API de *{v0}*"
+
+#. Translated using Online translation.
+msgid ""
+"Docker is not running. Please start Docker and rerun 'junior' if you want to"
+" use local LLMs."
+msgstr ""
+"Docker no se está ejecutando. Por favor, inicie Docker y vuelva a ejecutar "
+"'junior' si desea utilizar modelos locales."
+
+#. Translated using Online translation.
+msgid ""
+"Docker is not installed or running. Please install Docker and rerun 'junior'"
+" if you want to use local LLMs."
+msgstr ""
+"Docker no está instalado ni en ejecución. Por favor instale Docker y vuelva "
+"a ejecutar 'junior' si desea utilizar LLM locales."

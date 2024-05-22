@@ -23,7 +23,7 @@ class DockerHelper:
                 self.client.ping()  # Test Docker connection with a ping
                 self.is_docker_running = True
             except (docker.errors.DockerException, docker.errors.APIError) as e:
-                print(f"Error initializing Docker client: {e}")
+                #print(f"Error initializing Docker client: {e}")
                 self.client = None
                 self.is_docker_running = False
 

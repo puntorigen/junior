@@ -16,12 +16,14 @@ class Setup:
         self.local_settings_path = Path.cwd() / ".junior.json"
         self.encrypted_storage = EncryptedJSONStorage(str(self.home_settings_path))
         self.system = SystemInfo()
-        self.docker_helper = DockerHelper()
         self.docker_image_ollama = "ollama/ollama"
         self.local_container_name = "ollama_server"
         click.setup_language(language=language)
         self.llm_configs = llm_configs
         self.settings = self.load_settings()
+        self.docker_helper = DockerHelper()
+        if self.docker_helper.is_docker_running == False:
+            click.warn_("Docker is not running. Please start Docker and rerun 'junior' if you want to use local LLMs.")
 
     def load_settings(self) -> Dict:
         """Load settings from home or local files."""
@@ -49,16 +51,21 @@ class Setup:
         docker_status = self.docker_helper.check_docker_status()
 
         if docker_status == "not installed":
-            click.echo("Docker is not installed. Please install Docker and rerun 'm'.")
+            click.echo("Docker is not installed. Please install Docker and rerun 'junior'.")
             exit(1)
 
         if docker_status == "not running":
-            click.echo("Docker is not running. Please start Docker and rerun 'm'.")
+            click.echo("Docker is not running. Please start Docker and rerun 'junior'.")
             exit(1)
 
     def check_llm_settings(self):
         """Check and configure LLM settings."""
-        llm_available = "LLM" in self.settings
+        # remove 'local' models if Docker is not running
+        if not self.docker_helper.is_docker_running:
+            if self.settings and "LLM" in self.settings and "local" in self.settings["LLM"]:
+                self.settings["LLM"].pop("local", None)
+
+        llm_available = self.settings["LLM"] if self.settings and "LLM" in self.settings else None
 
         if not llm_available:
             specs = self.system.get_basic_info()
@@ -66,16 +73,21 @@ class Setup:
             disk_ok = specs["disk"]["free"] >= 100
 
             if ram_ok and disk_ok:
-                self.check_docker_requirements()
-                llm_choice = click.select(
-                    "Do you prefer to use only local LLMs, a combination of remote and local, or just remote?",
-                    choices=['local', 'remote', 'remote and local'],
-                    default="remote and local"
-                )
-                if llm_choice in ["local", "remote and local"]:
-                    click.echo("Setting up *local* LLMs...")
-                    self.setup_local_models()
-                if llm_choice in ["remote", "remote and local"]:
+                state = self.docker_helper.check_docker_status()
+                if state == "running":
+                    llm_choice = click.select(
+                        "Do you prefer to use only local LLMs, a combination of remote and local, or just remote?",
+                        choices=['local', 'remote', 'remote and local'],
+                        default="remote and local"
+                    )
+                    if llm_choice in ["local", "remote and local"]:
+                        click.echo("Setting up *local* LLMs...")
+                        self.setup_local_models()
+                    if llm_choice in ["remote", "remote and local"]:
+                        click.echo("Setting up *remote* LLMs...")
+                        self.setup_remote_models()
+                elif state == "not installed" or state == "not running":
+                    click.echoDim("Docker is not installed or running. Please install Docker and rerun 'junior' if you want to use local LLMs.")
                     click.echo("Setting up *remote* LLMs...")
                     self.setup_remote_models()
             else:
@@ -134,10 +146,18 @@ class Setup:
                 ("Enter *{name}* API Key",{ "name":name }),
                 default=self.settings["LLM"]["remote"].get(name, "")
             )
+            # if self.settings["LLM"]["remote"][name] empty, remove it
+            if not self.settings["LLM"]["remote"][name]:
+                self.settings["LLM"]["remote"].pop(name)
+        # if no remote LLMs, remove the key 'remote'
+        if not self.settings["LLM"]["remote"]:
+            self.settings["LLM"].pop("remote")
 
     def run_initial_setup(self):
         """Run the initial setup."""
-        click.echo("Running initial setup...")
+        # if self.settings has no keys, run initial setup
+        if not self.settings:
+            click.debug_("Running initial setup...")
         self.check_llm_settings()
         self.save_settings()
 

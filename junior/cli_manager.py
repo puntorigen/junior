@@ -31,7 +31,8 @@ class CLIManager:
         self.input_text_english = ""
         self.color_mapping = {
             "*": "yellow",
-            "_": "i"
+            "_": "i",
+            "|": "dim"
         }
         self._ = self.localizer._
         self.spinner = Spinner(["⭐", "✨", "🌟", "🚀"], 200)
@@ -74,6 +75,15 @@ class CLIManager:
         # Print the formatted text with 'Rich' support
         print(formatted_text)
 
+    def echoDim(self, text, *args, **kwargs):
+        """Echo messages with translation and formatting in dim color."""
+        # Translates the text and uses args and kwargs for formatting
+        translated_text = self._(text, *args, **kwargs)
+        # Apply color formatting
+        formatted_text = self.apply_color(translated_text)
+        # Print the formatted text with 'Rich' support
+        print("[dim]"+formatted_text+"[/]")
+
     def prompt(self, text, *args, **kwargs):
         """Prompt a question to the user with formatting support."""
         translated_text = text
@@ -88,7 +98,7 @@ class CLIManager:
         # Apply color formatting
         formatted_text = self.apply_color(translated_text)
         # Prompts the formatted text with 'Rich' support
-        return click.prompt(formatted_text, *args, **kwargs)
+        return Prompt.ask(formatted_text, *args, **kwargs)
 
     def select(self, text, choices: list[str], default):
         """Prompt a question to the user with choices and formatting support."""
@@ -128,6 +138,16 @@ class CLIManager:
         if not self.debug:
             return
         formatted_text = f"[green][dim]{self.domain}:{self.debug_prefix}: [blue]{formatted_text.format(*args, **kwargs)}[/][/]"
+        # Print the formatted text with 'Rich' support
+        print(formatted_text)
+
+    def warn_(self, text, *args, **kwargs):
+        """Echo warning messages with formatting."""
+        # Apply color formatting
+        formatted_text = self.apply_color(text)
+        if not self.debug:
+            return
+        formatted_text = f"[red][dim]{self.domain}:WARN:[/] [red]{formatted_text.format(*args, **kwargs)}[/][/]"
         # Print the formatted text with 'Rich' support
         print(formatted_text)
 
