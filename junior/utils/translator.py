@@ -15,11 +15,11 @@ class TranslationService:
         self.cache = Cache(directory=cache_dir)
         self.cache_ttl = cache_ttl
 
-    def _load_translator_offline(self):
-        """Load the offline translator model only when needed."""
-        if self.translator_offline is None:
-            from easynmt import EasyNMT
-            self.translator_offline = EasyNMT(self.translator_offline_model_name, device='cpu')
+    #def _load_translator_offline(self):
+    #    """Load the offline translator model only when needed."""
+    #    if self.translator_offline is None:
+    #        from easynmt import EasyNMT
+    #        self.translator_offline = EasyNMT(self.translator_offline_model_name, device='cpu')
 
     def detect_language(self, text):
         languages = [Language.ENGLISH, Language.FRENCH, Language.GERMAN, Language.SPANISH]
@@ -27,24 +27,24 @@ class TranslationService:
         detected = detector.detect_language_of(text)
         return detected.iso_code_639_1.name.lower()
 
-    def translate_offline(self, text, target_lang='en'):
-        self._load_translator_offline()
-        source_lang = self.detect_language(text)
-        if source_lang == target_lang:
-            return text
+    #def translate_offline(self, text, target_lang='en'):
+    #    self._load_translator_offline()
+    #    source_lang = self.detect_language(text)
+    #    if source_lang == target_lang:
+    #        return text
         
-        cache_key = f"{source_lang}:{target_lang}:{text}"
-        cached_translation = self.cache.get(cache_key)
+    #    cache_key = f"{source_lang}:{target_lang}:{text}"
+    #    cached_translation = self.cache.get(cache_key)
 
         #if cached_translation:
         #    return cached_translation
 
-        translation = self.translator_offline.translate(text, source_lang=source_lang, target_lang=target_lang)
-        self.cache.set(cache_key, translation, ttl=self.cache_ttl)
-        #print(f"!source language: {source_lang}, target language: {target_lang}")
-        #print(f"!source text: {text}")
-        #print(f"!offline translated text: {translation}")
-        return translation
+    #    translation = self.translator_offline.translate(text, source_lang=source_lang, target_lang=target_lang)
+    #    self.cache.set(cache_key, translation, ttl=self.cache_ttl)
+    #    #print(f"!source language: {source_lang}, target language: {target_lang}")
+    #    #print(f"!source text: {text}")
+    #    #print(f"!offline translated text: {translation}")
+    #    return translation
 
     def translate_online(self, text, target_lang='en'):
         source_lang = self.detect_language(text)
@@ -70,14 +70,15 @@ class TranslationService:
                 tmp = self.translate_online(text, target_lang)
                 if tmp == text:
                     #print("Translating offline")
-                    tmp2 = self.translate_offline(text, target_lang)
-                    #print("tmp2",tmp2)
-                    return tmp2
+                    #tmp2 = self.translate_offline(text, target_lang)
+                    return text # return as is
                 #print("Translating online")
                 return tmp
             except Exception:
                 #print("Translating offline", Exception)
-                return self.translate_offline(text, target_lang)
+                #return self.translate_offline(text, target_lang)
+                return text # return as is
         else:
             #print("Translating offline OK")
-            return self.translate_offline(text, target_lang)
+            #return self.translate_offline(text, target_lang)
+            return text # return as is
