@@ -27,6 +27,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Build Executable with PyInstaller
         run: |
+          pip uninstall -y pathlib
           pyinstaller --onefile --name junior junior/cli.py
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
@@ -53,7 +54,14 @@ jobs:
         run: pip install -r requirements.txt
       - name: Build Executable with PyInstaller
         run: |
+          pip uninstall -y pathlib
           pyinstaller --onefile --name junior junior/cli.py
+      - name: Make the built executable
+        run: |
+          chmod +x dist/junior
+      - name: Ad-hoc Sign the Application
+        run: |
+          codesign --sign - --force --deep --timestamp --options runtime dist/junior
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
