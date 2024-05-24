@@ -2,39 +2,10 @@ name: Build Python Application
 
 on:
   push:
-    branches:
-      - main  # Trigger build on pushes to main branch
     tags:
       - 'v*'  # Trigger release on tag pushes that match the v* pattern (e.g., v1.0)
 
 jobs:
-  build-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - name: Install pip and Upgrade
-        run: python -m ensurepip && python -m pip install --upgrade pip
-      - name: Fix fasttext issues
-        run: |
-          pip install wheel setuptools pip --upgrade
-          pip install pyinstaller
-      - name: Install Other Dependencies
-        run: pip install -r requirements.txt
-      - name: Build Executable with PyInstaller
-        run: |
-          pip uninstall -y pathlib
-          pyinstaller --onefile --name junior junior/cli.py
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: junior-ubuntu
-          path: dist/junior
-
   build-macos:
     runs-on: macos-latest
     steps:
@@ -69,7 +40,7 @@ jobs:
           path: dist/junior
 
   release:
-    needs: [build-ubuntu, build-macos]
+    needs: [build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
@@ -83,7 +54,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/junior-ubuntu
             dist/junior-macos
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
