@@ -8,55 +8,70 @@ on:
       - 'v*'  # Trigger release on tag pushes that match the v* pattern (e.g., v1.0)
 
 jobs:
-  build:
+  build-ubuntu:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-
       - name: Install pip and Upgrade
         run: python -m ensurepip && python -m pip install --upgrade pip
-
-      - name: Install pybind11
-        run: |
-          pip install pybind11
-          pip install pyinstaller
-
+      - name: Install pybind11 & pyinstaller
+        run: pip install pybind11 pyinstaller
       #- name: Install Other Dependencies
       #  run: pip install -r requirements.txt
-
       - name: Build Executable with PyInstaller
         run: |
           pyinstaller --onefile --name junior junior/cli.py
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: junior-executable
+          name: junior-ubuntu
+          path: dist/junior
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install pip and Upgrade
+        run: python -m ensurepip && python -m pip install --upgrade pip
+      - name: Install pybind11 & pyinstaller
+        run: pip install pybind11 pyinstaller
+      #- name: Install Other Dependencies
+      #  run: pip install -r requirements.txt
+      - name: Build Executable with PyInstaller
+        run: |
+          pyinstaller --onefile --name junior junior/cli.py
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: junior-macos
           path: dist/junior
 
   release:
-    needs: build
+    needs: [build-ubuntu, build-macos]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
           path: dist
-
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/junior
+          files: |
+            dist/junior-ubuntu
+            dist/junior-macos
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
