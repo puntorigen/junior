@@ -1,3 +1,5 @@
+from junior.utils.system_helper import SystemInfo
+
 llm_configs = {
     "openai/gpt3.5": {
         "context_window_tokens": 4096,
@@ -197,3 +199,8 @@ llm_configs = {
         "fallback": None
     },
 }
+
+# overwrite the local flag based on the system info
+if SystemInfo.is_silicon_mac():
+    llm_configs["ollama/phi3:instruct"]["minimum_ram_required"] = 8
+    llm_configs["ollama/mistral:instruct"]["minimum_ram_required"] = 8
