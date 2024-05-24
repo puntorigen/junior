@@ -19,8 +19,10 @@ jobs:
           python-version: '3.9'
       - name: Install pip and Upgrade
         run: python -m ensurepip && python -m pip install --upgrade pip
-      - name: Install pybind11 & pyinstaller
-        run: pip install pybind11 pyinstaller
+      - name: Fix fasttext issues
+        run: |
+          pip install wheel setuptools pip --upgrade
+          pip install pyinstaller
       - name: Install Other Dependencies
         run: pip install -r requirements.txt
       - name: Build Executable with PyInstaller
@@ -43,8 +45,10 @@ jobs:
           python-version: '3.9'
       - name: Install pip and Upgrade
         run: python -m ensurepip && python -m pip install --upgrade pip
-      - name: Install pybind11 & pyinstaller
-        run: pip install pybind11 pyinstaller
+      - name: Fix fasttext issues
+        run: |
+          pip install wheel setuptools pip --upgrade
+          pip install pyinstaller
       - name: Install Other Dependencies
         run: pip install -r requirements.txt
       - name: Build Executable with PyInstaller
