@@ -1,26 +1,39 @@
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v3
+name: Build Python Application
 
-  - name: Set up Python 3.9
-    uses: actions/setup-python@v4
-    with:
-      python-version: '3.9.12'
+on:
+  push:
+    branches:
+      - main  # Trigger build on pushes to main branch
+    tags:
+      - 'v*'  # Trigger release on tag pushes that match the v* pattern (e.g., v1.0)
 
-  - name: Install pip and Upgrade
-    run: python -m ensurepip && python -m pip install --upgrade pip
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-  - name: Install pybind11
-    run: pip install pybind11
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-  - name: Install Other Dependencies
-    run: pip install -r requirements.txt
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-  - name: Build Executable with PyInstaller
-    run: pyinstaller --onefile --name junior junior/cli.py
+    - name: Install pip and Upgrade
+      run: python -m ensurepip && python -m pip install --upgrade pip
 
-  - name: Upload Artifact
-    uses: actions/upload-artifact@v3
-    with:
-      name: junior-executable
-      path: dist/junior
+    - name: Install pybind11
+      run: pip install pybind11
+
+    - name: Install Other Dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build Executable with PyInstaller
+      run: pyinstaller --onefile --name junior junior/cli.py
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: junior-executable
+        path: dist/junior
