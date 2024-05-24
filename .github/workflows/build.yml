@@ -27,14 +27,8 @@ jobs:
         run: |
           pip uninstall -y pathlib
           pyinstaller --onefile --name junior junior/cli.py
-      - name: Make the built executable
-        run: |
-          chmod +x dist/junior
-      - name: Ad-hoc Sign the Application
-        run: |
-          codesign --sign - --force --deep --timestamp --options runtime dist/junior
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: junior-macos
           path: dist/junior
@@ -47,7 +41,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist
       - name: Create Release and Upload Assets
