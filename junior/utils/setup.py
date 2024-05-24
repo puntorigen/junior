@@ -117,6 +117,32 @@ class Setup:
         
         return model_names
 
+    def parse_last_pull_status(self, output):
+        """Parse the last line of docker pull output and extract details including byte size."""
+        import re
+        # Split the output into lines
+        lines = output.strip().split('\n')
+        
+        # Get the last non-empty line
+        last_line = lines[-1]
+        
+        # Regular expression to parse the line including byte size
+        pattern = r"(pulling\s+([0-9a-f]+))\.\.\.\s+(\d+)%.*?(\d+\s+[BKMG]B)"
+        match = re.search(pattern, last_line)
+        
+        if match:
+            # Extract relevant parts
+            message = match.group(1)  # 'pulling xxx'
+            percentage = int(match.group(3))  # Percentage as integer
+            byte_size = match.group(4)  # Byte size as string
+            return {
+                "message": message,
+                "percentage": percentage,
+                "byte_size": byte_size
+            }
+        else:
+            return None
+        
     def setup_local_models(self):
         """Set up local models using Docker and Ollama."""
         specs = self.system.get_basic_info()
@@ -154,8 +180,17 @@ class Setup:
                     if just_model not in installed:
                         click.echo("Downloading and configuring local model '{name}'...",name=just_model)
                         try:
-                            for output in self.docker_helper.execute_command_stream(f"ollama pull {just_model}"):
-                                print(output, end="")
+                            from rich.progress import track
+                            for output in track(self.docker_helper.execute_command_stream(f"ollama pull {just_model}"), description=f"Downloading {just_model}..."):
+                                #print(output, end="")
+                                # show custom progress bar updates
+                                try:
+                                    data = self.parse_last_pull_status(output)
+                                    if data:
+                                        print(data)
+                                except Exception as e:
+                                    print(e)
+                                    
                             self.settings["LLM"]["local"][name] = {"model": just_model}                            
                         except Exception as e:
                             click.warn_("An error ocurred downloading model: {model}",model=just_model)
