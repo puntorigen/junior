@@ -9,17 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            executable: junior
-          - os: windows-latest
-            executable: junior.exe
-          - os: macos-latest
-            executable: junior
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -36,8 +26,8 @@ jobs:
       - name: Install pybind11
         run: pip install pybind11
 
-      - name: Install Other Dependencies
-        run: pip install -r requirements.txt
+      #- name: Install Other Dependencies
+      #  run: pip install -r requirements.txt
 
       - name: Build Executable with PyInstaller
         run: |
@@ -46,8 +36,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.executable }}
-          path: dist/${{ matrix.executable }}
+          name: junior-executable
+          path: dist/junior
 
   release:
     needs: build
@@ -65,8 +55,6 @@ jobs:
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            dist/junior
-            dist/junior.exe
+          files: dist/junior
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
