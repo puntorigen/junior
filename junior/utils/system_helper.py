@@ -1,7 +1,6 @@
 import platform
 import psutil
 import shutil
-import GPUtil
 import cpuinfo
 import speedtest
 
@@ -36,24 +35,6 @@ class SystemInfo:
             "hz_advertised": cpu_info.get("hz_advertised")[0],
             "l3_cache": cpu_info.get("l3_cache_size")
         }
-
-    @staticmethod
-    def get_gpu_info():
-        """Get information about available GPUs."""
-        gpus = GPUtil.getGPUs()
-        gpu_info_list = []
-        for gpu in gpus:
-            gpu_info = {
-                "id": gpu.id,
-                "name": gpu.name,
-                "total_memory": gpu.memoryTotal,
-                "free_memory": gpu.memoryFree,
-                "used_memory": gpu.memoryUsed,
-                "gpu_util": gpu.load * 100,
-                "temperature": gpu.temperature
-            }
-            gpu_info_list.append(gpu_info)
-        return gpu_info_list
 
     @staticmethod
     def is_silicon_mac() -> bool:
@@ -92,7 +73,6 @@ class SystemInfo:
             "memory": SystemInfo.get_memory_info(),
             "disk": SystemInfo.get_disk_info(),
             "cpu": SystemInfo.get_cpu_info(),
-            "gpu": SystemInfo.get_gpu_info(),
             "benchmark": SystemInfo.basic_benchmark(),
             "is_silicon_mac": SystemInfo.is_silicon_mac()
         }
