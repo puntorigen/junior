@@ -62,7 +62,7 @@ Jinja2==3.1.3
 joblib==1.4.2
 jsonpatch==1.33
 jsonpointer==2.4
--e git+https://github.com/puntorigen/junior.git@288f063a842926ddff7d08de429179920815c0cb#egg=junior_ai_cli
+-e git+https://github.com/puntorigen/junior.git@ea19e02099d3331d1332b47049eccb37429918a6#egg=junior_ai_cli
 langchain==0.1.0
 langchain-community==0.0.20
 langchain-core==0.1.23
