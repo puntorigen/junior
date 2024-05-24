@@ -1,5 +1,5 @@
-from .cli_manager import CLIManager
-from .utils.setup import Setup
+from junior.cli_manager import CLIManager
+from junior.utils.setup import Setup
 import sys, signal, os, time
 click = CLIManager()
 #from .utils.brain import Brain

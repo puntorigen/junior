@@ -5,9 +5,9 @@ from groq import Groq
 from anthropic import Anthropic
 from pydantic import BaseModel
 from typing import Any, Dict, List, Union, Optional
-from .setup import Setup
-from .docker_helper import DockerHelper
-from .token_tracker import TokenTracker
+from junior.utils.setup import Setup
+from junior.utils.docker_helper import DockerHelper
+from junior.utils.token_tracker import TokenTracker
 import tiktoken
 
 class Brain:

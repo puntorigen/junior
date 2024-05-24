@@ -1,5 +1,4 @@
-import os
-import re
+import os, re
 from typing import List, Dict, Optional, Tuple
 
 class ProjectType:

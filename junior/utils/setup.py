@@ -3,11 +3,11 @@ from pathlib import Path
 from typing import Dict
 import json
 #import click
-from .storage import EncryptedJSONStorage
-from .system_helper import SystemInfo
-from .docker_helper import DockerHelper
-from .llm_configs import llm_configs
-from ..cli_manager import CLIManager
+from junior.utils.storage import EncryptedJSONStorage
+from junior.utils.system_helper import SystemInfo
+from junior.utils.docker_helper import DockerHelper
+from junior.utils.llm_configs import llm_configs
+from junior.cli_manager import CLIManager
 click = CLIManager(domain="setup")
 class Setup:
     def __init__(self, language="en"):

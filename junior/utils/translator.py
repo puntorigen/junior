@@ -1,7 +1,7 @@
 # translator.py
 from deep_translator import GoogleTranslator as DeepGoogleTranslator
 from lingua import Language, LanguageDetectorBuilder
-from .cache import Cache
+from junior.utils.cache import Cache
 import warnings
 
 # Ignore all warnings from the huggingface_hub.file_download module

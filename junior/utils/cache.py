@@ -1,6 +1,4 @@
-import os
-import json
-import time
+import os, json, time
 from pathlib import Path
 
 class Cache:

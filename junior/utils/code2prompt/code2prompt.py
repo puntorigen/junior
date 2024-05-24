@@ -9,8 +9,8 @@ from pathlib import Path
 from fnmatch import fnmatch
 from importlib import import_module
 
-from .comment_stripper import strip_comments
-from .language_inference import infer_language
+from junior.utils.code2prompt.comment_stripper import strip_comments
+from junior.utils.code2prompt.language_inference import infer_language
 
 class Code2Prompt:
     def __init__(self, path, gitignore=None, file_filter=None, suppress_comments=False):

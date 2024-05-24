@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict
+from junior.utils.storage import EncryptedJSONStorage
 import json
-from .storage import EncryptedJSONStorage
 
 class TokenTracker:
     def __init__(self, storage_path: Path = Path.home() / ".junior" / "tracking.json"):

@@ -1,7 +1,4 @@
-import os
-import docker
-import shutil
-import tarfile
+import os, docker, shutil, tarfile
 from pathlib import Path
 from typing import List, Dict, Union
 import platform

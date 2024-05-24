@@ -1,8 +1,4 @@
-import platform
-import psutil
-import shutil
-import cpuinfo
-import speedtest
+import platform, psutil, shutil, cpuinfo, speedtest
 
 class SystemInfo:
     @staticmethod

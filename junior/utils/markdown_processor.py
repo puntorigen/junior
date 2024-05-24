@@ -1,5 +1,5 @@
 import mistune
-from . import code_executor
+import junior.utils.code_executor
 
 class MyRenderer(mistune.HTMLRenderer):
     def block_code(self, code, info=None):
