@@ -4,7 +4,7 @@ from typing import Dict
 import json
 #import click
 from junior.utils.storage import EncryptedJSONStorage
-from junior.utils.system_helper import SystemInfo, is_silicon_mac
+from junior.utils.system_helper import SystemInfo
 from junior.utils.docker_helper import DockerHelper
 from junior.utils.llm_configs import llm_configs
 from junior.cli_manager import CLIManager
@@ -75,7 +75,7 @@ class Setup:
         if not llm_available:
             specs = self.system.get_basic_info()
             ram_ok = specs["memory"]["total"] >= 16
-            if is_silicon_mac(): # M1 Mac supported from 8GB
+            if SystemInfo.is_silicon_mac(): # M1 Mac supported from 8GB
                 ram_ok = specs["memory"]["total"] >= 8
 
             disk_ok = specs["disk"]["free"] >= 100
